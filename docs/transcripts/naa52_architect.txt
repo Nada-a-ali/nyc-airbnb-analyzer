@@ -1,0 +1,3851 @@
+STUDENT_NAME: Nada Ali 
+NETID: Naa52
+OPTION: Option 3
+ROLE: Architect
+AGENT_TOOL: ChatGPT
+REPOSITORY_B_URL: https://github.com/Nada-a-ali/nyc-airbnb-analyzer.git
+===== TRANSCRIPT START =====
+
+[STUDENT]
+
+I am completing a college assignment called “Repository B: AI-Assisted Development Workflow.”
+I have selected Option 3: Create a New Project.
+My project is:
+“NYC Airbnb Price & Availability Analyzer”
+The goal is to build a small Python command-line data-analysis application that reads a CSV dataset of NYC Airbnb listings and provides useful summary analysis.
+Dataset:
+	•	Name: New York City Airbnb Open Data
+	•	Kaggle dataset: dgomonov/new-york-city-airbnb-open-data
+	•	File: AB_NYC_2019.csv
+	•	Format: CSV
+	•	Approximately 49,000 NYC Airbnb listings
+	•	16 columns
+	•	The data represents NYC Airbnb listing information from 2019
+	•	The CSV is already included in my GitHub Repository B under data/AB_NYC_2019.csv
+I want to keep the project relatively simple. I want a command-line Python application rather than a web application. Pandas is acceptable. I do not want machine learning, web scraping, a database, or unnecessary dependencies.
+The repository needs:
+	•	Working Python code
+	•	Meaningful automated tests
+	•	Setup and usage documentation
+	•	The included dataset
+	•	Clear evidence of my own technical decisions
+	•	docs/plan.md
+	•	A README explaining the project, installation, usage, testing, manual smoke test, AI-assisted workflow, accepted AI recommendation, changed/rejected AI recommendation, and independent verification
+Please act ONLY as the ARCHITECT.
+Do not implement the project yet.
+Instead, examine the project goal and produce a detailed implementation plan that I can review before giving it to a Builder.
+Your plan should identify:
+	1	Project requirements
+	2	Proposed repository structure
+	3	Important files and their responsibilities
+	4	Data format and assumptions
+	5	Core functionality
+	6	Data-cleaning decisions
+	7	Testing strategy, including edge cases
+	8	CLI design
+	9	Documentation requirements
+	10	Potential risks or design concerns
+	11	Manual smoke-test procedure
+	12	Final verification procedure
+	13	Suggested development sequence
+Keep the scope appropriate for a college assignment. Prefer simple, maintainable solutions over unnecessary features.
+At the end, provide a proposed complete docs/plan.md that I can review and save into the repository.
+Do not claim that you implemented or tested anything. This is the planning stage only.
+[AGENT]
+
+Absolutely. I’ll stay strictly in the Architect role: no implementation, no claims that anything has been run, and no invented test results.
+The architecture below deliberately keeps the project small: a Python CLI, pandas for CSV analysis, pytest for automated tests, and no database/web/ML layer.
+Implementation Plan — NYC Airbnb Price & Availability Analyzer
+1. Project requirements
+Functional requirements
+The application should:
+	1	Load data/AB_NYC_2019.csv.
+	2	Validate that the expected columns are present.
+	3	Clean the data sufficiently for analysis.
+	4	Provide useful summary information about NYC Airbnb listings.
+	5	Allow a user to select an analysis from the command line.
+	6	Produce readable results in the terminal.
+	7	Handle invalid input and common data problems without crashing unexpectedly.
+	8	Provide automated tests for the main analysis functions and important edge cases.
+Suggested analyses
+Keep the initial application to 3–4 simple analyses:
+	•	Overall summary
+	◦	Number of listings
+	◦	Average price
+	◦	Median price
+	◦	Average/median availability
+	•	Price by neighbourhood group
+	◦	Number of listings
+	◦	Median price
+	◦	Average price
+	•	Room-type analysis
+	◦	Number of listings by room type
+	◦	Median price by room type
+	•	Availability analysis
+	◦	Average availability_365
+	◦	Median availability_365
+	◦	Optionally identify listings with zero availability
+These provide enough functionality to demonstrate meaningful data analysis without turning the assignment into a large application.
+Non-requirements
+The project should explicitly avoid:
+	•	Machine learning
+	•	Predictive modeling
+	•	Web scraping
+	•	APIs
+	•	Databases
+	•	Web applications
+	•	Complex visualization frameworks
+	•	External Airbnb APIs
+	•	Authentication
+	•	User accounts
+	•	Unnecessary third-party dependencies
+
+2. Proposed repository structure
+repository-b/
+│
+├── data/
+│   └── AB_NYC_2019.csv
+│
+├── src/
+│   └── nyc_airbnb/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── data_loader.py
+│       └── analysis.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_analysis.py
+│   └── fixtures/
+│       └── small_airbnb.csv
+│
+├── docs/
+│   └── plan.md
+│
+├── README.md
+├── requirements.txt
+├── .gitignore
+└── pyproject.toml
+A slightly simpler alternative would be to put everything in one Python module, but separating loading, analysis, and CLI responsibilities gives you clearer technical decisions to discuss in the assignment without adding much complexity.
+
+3. Important files and responsibilities
+data/AB_NYC_2019.csv
+The supplied Kaggle dataset.
+The application should read this file but never modify it.
+The original dataset should remain available in the repository so that another person can reproduce the analysis.
+
+src/nyc_airbnb/data_loader.py
+Responsible for:
+	•	Reading the CSV using pandas.
+	•	Checking that the file exists.
+	•	Checking that required columns exist.
+	•	Performing basic data cleaning.
+	•	Returning a cleaned DataFrame.
+This keeps file-handling logic separate from the actual analysis.
+
+src/nyc_airbnb/analysis.py
+Responsible for analysis functions.
+For example, conceptually:
+get_overall_summary()
+get_price_by_neighbourhood()
+get_room_type_summary()
+get_availability_summary()
+These functions should receive a DataFrame and return analysis results.
+They should not deal with command-line input or printing.
+This separation makes the functions easy to test.
+
+src/nyc_airbnb/cli.py
+Responsible for:
+	•	Starting the application.
+	•	Displaying the menu/options.
+	•	Reading user input.
+	•	Calling the appropriate analysis function.
+	•	Formatting results for the terminal.
+	•	Handling invalid menu selections.
+The CLI should not contain the actual statistical calculations.
+
+tests/test_data_loader.py
+Tests:
+	•	Successful CSV loading.
+	•	Missing file handling.
+	•	Missing required columns.
+	•	Basic cleaning behavior.
+
+tests/test_analysis.py
+Tests:
+	•	Overall statistics.
+	•	Grouped price summaries.
+	•	Room-type counts/statistics.
+	•	Availability calculations.
+	•	Empty/filtered datasets.
+	•	Missing values.
+A small test fixture should be used instead of repeatedly loading the 49,000-row dataset.
+
+tests/fixtures/small_airbnb.csv
+A tiny synthetic dataset designed specifically for predictable tests.
+For example, it could contain only 5–10 rows with deliberately chosen values.
+This makes tests:
+	•	Fast
+	•	Deterministic
+	•	Easy to understand
+	•	Independent of the large Kaggle dataset
+
+README.md
+Should explain:
+	•	Project purpose
+	•	Dataset
+	•	Features
+	•	Repository structure
+	•	Installation
+	•	Usage
+	•	Testing
+	•	Manual smoke test
+	•	AI-assisted development workflow
+	•	Accepted AI recommendation
+	•	Changed/rejected AI recommendation
+	•	Independent verification
+
+docs/plan.md
+Contains the architecture and implementation plan.
+This is the document you are reviewing now.
+
+requirements.txt
+Keep dependencies minimal.
+Likely:
+pandas
+pytest
+If the project uses only pandas and pytest, there is no reason to introduce additional libraries.
+
+pyproject.toml
+Can define the project metadata and pytest configuration.
+This is preferable to creating a complicated setup system.
+
+4. Data format and assumptions
+The project uses the New York City Airbnb Open Data dataset from 2019.
+The expected file is:
+data/AB_NYC_2019.csv
+The analysis should expect the important columns to include:
+id
+name
+host_id
+host_name
+neighbourhood_group
+neighbourhood
+latitude
+longitude
+room_type
+price
+minimum_nights
+number_of_reviews
+last_review
+reviews_per_month
+calculated_host_listings_count
+availability_365
+Important assumptions:
+Price
+price represents the nightly listing price.
+It should be treated as numeric.
+The analysis should use:
+	•	mean
+	•	median
+rather than assuming that the mean alone represents a "typical" listing.
+Availability
+availability_365 represents the number of days in a year that the listing was available according to the dataset.
+It should be treated as numeric.
+Categories
+The following are categorical:
+neighbourhood_group
+neighbourhood
+room_type
+The application can group listings using these fields.
+Missing values
+The dataset contains missing values in some columns.
+The application should not blindly remove every row containing any missing value because that could unnecessarily discard useful observations.
+Instead, cleaning should be analysis-specific.
+For example:
+	•	Price analysis requires valid price.
+	•	Availability analysis requires valid availability_365.
+	•	Room-type analysis requires valid room_type.
+This is a defensible design decision that can be documented in the README.
+
+5. Core functionality
+Functionality A — Load data
+The application loads the CSV into a pandas DataFrame.
+The loader should verify that essential columns exist.
+If the file is missing, the application should provide a clear error rather than producing an obscure Python traceback.
+
+Functionality B — Overall summary
+Display information such as:
+Total listings: ...
+Average price: $...
+Median price: $...
+Average availability: ... days
+Median availability: ... days
+The median is particularly useful because Airbnb prices can be highly skewed.
+
+Functionality C — Price by neighbourhood group
+Group by:
+neighbourhood_group
+and calculate:
+	•	Number of listings
+	•	Average price
+	•	Median price
+Example output conceptually:
+Neighbourhood Group   Listings   Median Price   Average Price
+--------------------------------------------------------------
+Bronx                 ...        $...            $...
+Brooklyn              ...        $...            $...
+Manhattan             ...        $...            $...
+Queens                ...        $...            $...
+Staten Island         ...        $...            $...
+The exact values should be generated by the application rather than hard-coded.
+
+Functionality D — Room-type summary
+Group by:
+room_type
+and calculate:
+	•	Listing count
+	•	Median price
+	•	Average price
+This allows the user to compare categories such as:
+	•	Entire home/apt
+	•	Private room
+	•	Shared room
+
+Functionality E — Availability summary
+Calculate:
+	•	Average availability
+	•	Median availability
+	•	Number of listings with zero availability
+	•	Percentage of listings with zero availability, if straightforward to implement
+This gives the project an actual availability analysis, rather than focusing entirely on price.
+
+6. Data-cleaning decisions
+The Builder should implement only the cleaning necessary for reliable analysis.
+Required cleaning
+Convert numeric fields
+Ensure fields such as:
+price
+minimum_nights
+number_of_reviews
+availability_365
+are numeric.
+Handle missing analysis values
+For each analysis, exclude rows where the variable required by that analysis is missing.
+For example:
+price analysis → remove rows with missing/invalid price
+availability analysis → remove rows with missing/invalid availability
+Avoid modifying the source dataset
+Cleaning should create a DataFrame used by the application rather than rewriting the CSV.
+
+Should zero prices be removed?
+This should be an explicit technical decision.
+A reasonable design is:
+	•	Treat negative prices as invalid.
+	•	Decide whether zero is valid or invalid based on the dataset assumptions.
+	•	Document the decision.
+For a simple college project, treating price <= 0 as invalid for price summaries is defensible because the analysis concerns listing prices.
+The important part is that the decision is explicit and consistently tested.
+
+Should extreme prices be removed?
+Do not automatically remove outliers.
+The dataset may contain unusually expensive listings, but automatically deleting them changes the analysis.
+Instead:
+	•	Keep valid positive prices.
+	•	Report median as well as mean.
+	•	Explain that mean prices may be influenced by extreme values.
+This is simpler and more transparent.
+
+7. Testing strategy
+Testing should focus on the application's behavior rather than trying to prove pandas itself works.
+Unit tests
+Each major analysis function should have tests.
+Example: overall summary
+Test that a small known dataset produces the expected:
+	•	Count
+	•	Mean
+	•	Median
+Example: neighbourhood analysis
+Given a fixture where the prices are known, verify the calculated median for each neighbourhood group.
+Example: room-type analysis
+Verify that the correct number of listings appears for each room type.
+Example: availability
+Verify:
+	•	Mean availability
+	•	Median availability
+	•	Zero-availability count
+
+Data-loader tests
+Test:
+	1	Valid CSV loads.
+	2	Missing file produces an appropriate error.
+	3	Missing required column produces an appropriate error.
+	4	Numeric fields are handled correctly.
+
+CLI tests
+The CLI does not need extensive automated testing if that would create unnecessary complexity.
+At minimum, the architecture should support testing that:
+	•	A valid menu selection calls the appropriate analysis.
+	•	An invalid menu choice is handled cleanly.
+	•	The application can exit normally.
+If implementing CLI tests becomes disproportionately complicated, prioritize testing the analysis functions and perform the CLI behavior through the manual smoke test.
+
+8. Important edge cases
+The Builder should account for:
+Empty DataFrame
+An analysis should not produce misleading statistics if there are zero usable rows.
+Missing values
+Statistics should not unexpectedly become NaN merely because unrelated columns contain missing values.
+Missing required columns
+The loader should report which column is missing.
+Invalid price
+Negative/non-numeric prices should not be included in price calculations.
+Invalid availability
+Non-numeric availability should not be used in availability calculations.
+Unknown room type
+The grouping logic should naturally handle additional categories rather than hard-coding only three room types.
+Invalid CLI choice
+The user should receive a readable message such as:
+Invalid option. Please select one of the available choices.
+Dataset path
+The application should work when run from the repository in the documented manner.
+The exact path-handling approach should be chosen so that it does not depend unnecessarily on the user's current working directory.
+
+9. CLI design
+Keep the CLI simple.
+A menu-based interface is appropriate for the assignment.
+Conceptually:
+NYC Airbnb Price & Availability Analyzer
+
+1. Overall summary
+2. Price by neighbourhood group
+3. Summary by room type
+4. Availability summary
+5. Exit
+
+Select an option:
+After displaying an analysis, the application can return to the menu.
+The CLI should avoid complicated command parsing unless there is a clear assignment requirement for it.
+Recommended design principle
+The CLI handles:
+"What does the user want to see?"
+The analysis module handles:
+"How is that statistic calculated?"
+The loader handles:
+"How do we obtain clean data?"
+That gives the project a clear three-layer structure without overengineering it.
+
+10. Documentation requirements
+The README should include the following sections.
+Project title
+NYC Airbnb Price & Availability Analyzer
+Project overview
+Briefly describe:
+	•	What the application does
+	•	Why the dataset is being analyzed
+	•	What users can investigate
+Dataset
+Document:
+	•	Dataset name
+	•	Kaggle source
+	•	File name
+	•	Approximate size
+	•	2019 time period
+	•	Relevant columns
+Features
+List the available analyses.
+Installation
+Explain:
+	1	Clone/download repository.
+	2	Create virtual environment.
+	3	Activate it.
+	4	Install dependencies.
+For example, the commands can be documented without the Builder needing additional tooling.
+Usage
+Show how to launch the CLI.
+Testing
+Explain how to run pytest.
+Manual smoke test
+Document the exact steps used to manually verify the application.
+AI-assisted workflow
+This section is particularly important for your assignment.
+It should document:
+AI recommendation accepted
+Describe one recommendation from AI that was adopted.
+For example:
+AI recommended separating data loading, analysis, and CLI responsibilities into separate modules. This recommendation was accepted because it keeps statistical logic independent from user-interface code and makes the analysis functions easier to test.
+AI recommendation changed or rejected
+Document one recommendation that was modified or rejected.
+For example:
+AI initially suggested adding charts/visualizations. This recommendation was rejected because the assignment calls for a small command-line application and adding a visualization dependency would increase project complexity without being necessary for the required analysis.
+The actual decision should reflect what the Builder eventually does.
+Independent verification
+Explain that AI-generated suggestions were independently checked against:
+	•	Dataset columns
+	•	pandas behavior
+	•	Python behavior
+	•	Automated tests
+	•	Manual execution
+This demonstrates that AI assistance did not replace technical verification.
+
+11. Potential risks and design concerns
+Risk 1 — Scope creep
+The biggest risk is turning a small CLI assignment into a full data science application.
+Avoid:
+	•	Machine learning
+	•	Charts
+	•	Web interfaces
+	•	Databases
+	•	Complex configuration
+	•	Multiple external libraries
+
+Risk 2 — Treating AI output as automatically correct
+AI-generated code and recommendations should be treated as suggestions.
+The Builder should verify:
+	•	Column names
+	•	pandas operations
+	•	statistical calculations
+	•	error handling
+	•	test expectations
+
+Risk 3 — Dataset-dependent tests
+Tests should not depend heavily on the complete 49,000-row dataset.
+Use a tiny deterministic fixture for unit tests.
+The real dataset should primarily be used for:
+	•	Manual smoke testing
+	•	End-to-end verification
+
+Risk 4 — Mean price interpretation
+Airbnb price data can be skewed.
+Therefore, the application should report both:
+Mean
+Median
+rather than presenting the mean as the sole measure of a typical listing.
+
+Risk 5 — Data-cleaning assumptions
+Over-cleaning can alter the results.
+The application should use documented, minimal cleaning rules rather than silently deleting unusual observations.
+
+Risk 6 — File-path problems
+The program should have a documented way to locate:
+data/AB_NYC_2019.csv
+It should not require the user to manually edit Python source code to specify the dataset location.
+
+12. Manual smoke-test procedure
+After implementation, a human should perform the following test.
+Step 1 — Install
+Create the documented virtual environment and install the listed dependencies.
+Step 2 — Launch
+Start the CLI using the documented command.
+Expected:
+NYC Airbnb Price & Availability Analyzer
+and a menu appears.
+Step 3 — Overall summary
+Select:
+1
+Verify that the application displays:
+	•	Listing count
+	•	Mean price
+	•	Median price
+	•	Availability information
+Step 4 — Neighbourhood analysis
+Select the neighbourhood option.
+Verify that multiple NYC neighbourhood groups appear and that price statistics are displayed.
+Step 5 — Room type
+Select the room-type option.
+Verify that the categories and corresponding statistics are displayed.
+Step 6 — Availability
+Select the availability option.
+Verify that availability statistics are displayed.
+Step 7 — Invalid input
+Enter something such as:
+99
+Verify that the program does not crash and gives a useful error message.
+Step 8 — Exit
+Select the exit option.
+Verify that the program terminates normally.
+
+13. Final verification procedure
+Before considering the project complete, verify:
+Code
+	•	Application launches successfully.
+	•	CSV loads successfully.
+	•	Expected columns are validated.
+	•	Analysis functions return sensible results.
+	•	CLI handles valid input.
+	•	CLI handles invalid input.
+	•	No unnecessary dependencies were introduced.
+Tests
+	•	All automated tests pass.
+	•	Tests cover normal cases.
+	•	Tests cover missing/invalid data.
+	•	Tests cover important edge cases.
+	•	Tests use a small fixture where practical.
+Dataset
+	•	data/AB_NYC_2019.csv exists.
+	•	Source dataset has not been accidentally modified.
+	•	The application uses the included dataset.
+Documentation
+	•	README explains installation.
+	•	README explains usage.
+	•	README explains testing.
+	•	README includes the smoke test.
+	•	README documents AI-assisted development.
+	•	README identifies an accepted AI recommendation.
+	•	README identifies a changed/rejected recommendation.
+	•	README explains independent verification.
+	•	docs/plan.md is present.
+Repository quality
+	•	.gitignore is present.
+	•	No virtual environment is committed.
+	•	No generated cache files are committed.
+	•	No unnecessary files are committed.
+	•	Code has clear names and reasonable comments.
+	•	Project can be understood by another student/developer.
+
+14. Suggested development sequence
+The Builder should implement in this order:
+Phase 1 — Repository foundation
+	1	Create the proposed directories.
+	2	Establish Python project configuration.
+	3	Add dependency definitions.
+	4	Confirm the dataset location.
+Phase 2 — Data loading
+	5	Implement CSV loading.
+	6	Implement required-column validation.
+	7	Implement basic cleaning.
+	8	Add data-loader tests.
+Phase 3 — Analysis
+	9	Implement overall summary.
+	10	Implement neighbourhood-group price analysis.
+	11	Implement room-type analysis.
+	12	Implement availability analysis.
+	13	Add tests for each analysis.
+Phase 4 — CLI
+	14	Build the simple menu.
+	15	Connect menu options to analysis functions.
+	16	Add invalid-input handling.
+	17	Add a clean exit.
+Phase 5 — Verification
+	18	Run automated tests.
+	19	Perform the manual smoke test using the real dataset.
+	20	Fix issues discovered during testing.
+	21	Re-run the complete test suite.
+Phase 6 — Documentation
+	22	Complete README.
+	23	Document AI-assisted decisions.
+	24	Document independent verification.
+	25	Review docs/plan.md.
+	26	Perform final repository review.
+This order prevents the CLI from being built around analysis logic that has not yet been tested.
+
+Proposed complete docs/plan.md
+Below is the proposed artifact that can be saved as docs/plan.md.
+NYC Airbnb Price & Availability Analyzer — Implementation Plan
+1. Project Overview
+The NYC Airbnb Price & Availability Analyzer is a small Python command-line data-analysis application.
+The application will read the included New York City Airbnb Open Data CSV file and provide summary information about Airbnb listings, including prices, neighbourhood groups, room types, and availability.
+The project is intentionally limited in scope. It will use Python and pandas for data processing and pytest for automated testing. It will not use machine learning, web scraping, a database, a web application, or unnecessary external dependencies.
+2. Project Requirements
+The application must:
+	•	Read data/AB_NYC_2019.csv.
+	•	Validate that required dataset columns are available.
+	•	Perform basic data cleaning required for reliable analysis.
+	•	Provide useful summary analysis through a command-line interface.
+	•	Handle invalid user input gracefully.
+	•	Include automated tests.
+	•	Include the dataset in the repository.
+	•	Include setup and usage documentation.
+	•	Document AI-assisted development decisions.
+	•	Document independent verification of AI-assisted recommendations and implementation.
+The application will provide the following main analyses:
+	1	Overall listing summary.
+	2	Price statistics by neighbourhood group.
+	3	Price and listing statistics by room type.
+	4	Availability summary.
+The project will not include:
+	•	Machine learning
+	•	Predictive modeling
+	•	Web scraping
+	•	Databases
+	•	Web applications
+	•	External APIs
+	•	User authentication
+	•	Complex visualization systems
+3. Repository Structure
+repository-b/
+│
+├── data/
+│   └── AB_NYC_2019.csv
+│
+├── src/
+│   └── nyc_airbnb/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── data_loader.py
+│       └── analysis.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_analysis.py
+│   └── fixtures/
+│       └── small_airbnb.csv
+│
+├── docs/
+│   └── plan.md
+│
+├── README.md
+├── requirements.txt
+├── pyproject.toml
+└── .gitignore
+4. File Responsibilities
+data/AB_NYC_2019.csv
+Contains the supplied New York City Airbnb Open Data dataset.
+The application will read this file but will not modify the source CSV.
+src/nyc_airbnb/data_loader.py
+Responsible for:
+	•	Loading the CSV with pandas.
+	•	Checking that the file exists.
+	•	Checking required columns.
+	•	Performing basic data cleaning.
+	•	Returning data suitable for analysis.
+src/nyc_airbnb/analysis.py
+Contains the project's data-analysis functions.
+Expected functions will cover:
+	•	Overall summary.
+	•	Price by neighbourhood group.
+	•	Room-type summary.
+	•	Availability summary.
+Analysis functions should accept DataFrames and return results rather than directly handling command-line input.
+src/nyc_airbnb/cli.py
+Responsible for:
+	•	Starting the application.
+	•	Displaying the menu.
+	•	Reading user choices.
+	•	Calling analysis functions.
+	•	Displaying formatted results.
+	•	Handling invalid menu choices.
+	•	Exiting the application.
+The CLI should not contain the main statistical calculations.
+tests/test_data_loader.py
+Tests CSV loading, required-column validation, and basic cleaning behavior.
+tests/test_analysis.py
+Tests the statistical and grouping functions.
+tests/fixtures/small_airbnb.csv
+A small deterministic dataset used for automated tests.
+The fixture should contain enough rows to test grouping, missing values, price calculations, room types, and availability.
+README.md
+Documents:
+	•	Project purpose.
+	•	Dataset.
+	•	Installation.
+	•	Usage.
+	•	Features.
+	•	Testing.
+	•	Manual smoke testing.
+	•	AI-assisted workflow.
+	•	Accepted AI recommendation.
+	•	Changed/rejected AI recommendation.
+	•	Independent verification.
+requirements.txt
+Contains only the dependencies required by the project, expected to be pandas and pytest.
+pyproject.toml
+Contains basic Python project configuration and, where appropriate, pytest configuration.
+.gitignore
+Prevents temporary Python files, virtual environments, caches, and other generated files from being committed.
+5. Data Format and Assumptions
+The project uses the New York City Airbnb Open Data dataset from 2019.
+The expected file is:
+data/AB_NYC_2019.csv
+Important fields include:
+	•	id
+	•	name
+	•	host_id
+	•	host_name
+	•	neighbourhood_group
+	•	neighbourhood
+	•	latitude
+	•	longitude
+	•	room_type
+	•	price
+	•	minimum_nights
+	•	number_of_reviews
+	•	last_review
+	•	reviews_per_month
+	•	calculated_host_listings_count
+	•	availability_365
+The analysis will primarily use:
+	•	neighbourhood_group
+	•	room_type
+	•	price
+	•	availability_365
+The project assumes that price and availability can be represented as numeric values and that neighbourhood group and room type are categorical variables.
+6. Data-Cleaning Decisions
+Cleaning will be limited to what is necessary for reliable analysis.
+Numeric fields used by the application should be converted to appropriate numeric types.
+Missing values will be handled according to the analysis being performed rather than deleting every row with any missing value.
+For example:
+	•	Price analysis will require a valid price.
+	•	Availability analysis will require a valid availability value.
+	•	Room-type analysis will require a valid room type.
+	•	Neighbourhood-group analysis will require a valid neighbourhood group.
+Negative prices will be treated as invalid.
+The project should make an explicit decision about zero prices. For price summaries, a reasonable approach is to treat prices less than or equal to zero as invalid because the analysis concerns listing prices.
+Valid but unusually large prices should not automatically be removed as outliers. The application will report both mean and median prices so that users can see the difference between the two measures.
+The original CSV will not be modified during cleaning.
+7. Core Functionality
+7.1 Overall Summary
+The application will display:
+	•	Total number of listings.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+7.2 Price by Neighbourhood Group
+The application will group listings by neighbourhood_group and display:
+	•	Number of listings.
+	•	Average price.
+	•	Median price.
+7.3 Room-Type Summary
+The application will group listings by room_type and display:
+	•	Number of listings.
+	•	Average price.
+	•	Median price.
+7.4 Availability Summary
+The application will calculate:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability if this can be implemented without unnecessary complexity.
+8. CLI Design
+The command-line interface will use a simple menu.
+The intended structure is:
+NYC Airbnb Price & Availability Analyzer
+
+1. Overall summary
+2. Price by neighbourhood group
+3. Summary by room type
+4. Availability summary
+5. Exit
+
+Select an option:
+The user should be able to select an analysis, view its results, and return to the menu.
+Invalid choices should result in a readable error message rather than an unexpected crash.
+The CLI will be kept intentionally simple because the goal is to demonstrate data analysis rather than build a sophisticated command-line framework.
+9. Testing Strategy
+Automated tests will use pytest.
+The analysis tests should primarily use the small fixture dataset rather than the full Airbnb dataset.
+This makes tests fast, deterministic, and easy to verify manually.
+Data-loader tests
+Tests should cover:
+	•	Successful loading of a valid CSV.
+	•	Missing file behavior.
+	•	Missing required columns.
+	•	Handling of invalid or missing numeric values.
+	•	Basic cleaning behavior.
+Analysis tests
+Tests should verify:
+	•	Overall listing counts.
+	•	Mean and median price calculations.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Availability calculations.
+	•	Zero-availability counts.
+	•	Handling of missing values.
+	•	Handling of empty or unusable data.
+CLI tests
+Where practical, tests should verify:
+	•	Valid menu selections.
+	•	Invalid menu selections.
+	•	Normal exit behavior.
+If CLI testing becomes disproportionately complicated, the main automated testing effort should remain focused on the data loader and analysis functions, while the complete CLI workflow is verified through the manual smoke test.
+10. Important Edge Cases
+The implementation should consider:
+	•	Missing CSV file.
+	•	Missing required columns.
+	•	Empty DataFrame.
+	•	Missing price values.
+	•	Missing availability values.
+	•	Missing room types.
+	•	Missing neighbourhood groups.
+	•	Negative or invalid prices.
+	•	Invalid numeric values.
+	•	Unknown categorical values.
+	•	Invalid CLI choices.
+	•	Dataset path issues.
+The application should fail with clear messages when an unrecoverable data or file problem occurs.
+11. Documentation Requirements
+The README must explain:
+Project
+What the application does and why it was created.
+Dataset
+The dataset name, source, file name, approximate size, and relevant variables.
+Installation
+How to create an environment and install dependencies.
+Usage
+How to launch and use the CLI.
+Testing
+How to run the automated tests.
+Manual Smoke Test
+The steps used to manually verify the application with the real dataset.
+AI-Assisted Workflow
+The README will document how AI was used during development.
+It must identify at least one AI recommendation that was accepted and explain why.
+It must also identify at least one AI recommendation that was changed or rejected and explain why.
+The final README should reflect the actual decisions made during implementation rather than claiming decisions that were not made.
+Independent Verification
+The README will explain that AI-generated suggestions and code were independently checked using the dataset, Python/pandas behavior, automated tests, and manual execution.
+12. Potential Risks and Design Concerns
+Scope creep
+The project should remain a small CLI data-analysis application.
+Machine learning, web interfaces, databases, visual dashboards, and unrelated features should not be added unless required by the assignment.
+AI-generated errors
+AI recommendations should be treated as suggestions rather than authoritative answers.
+Important implementation decisions should be checked against the actual dataset and verified through tests or manual execution.
+Dataset-dependent testing
+Automated tests should use a small fixture wherever possible.
+The full dataset should mainly be used for end-to-end and manual verification.
+Price interpretation
+Because prices can be unevenly distributed, both mean and median should be reported.
+The project should avoid claiming that either statistic completely represents a "typical" Airbnb listing.
+Cleaning assumptions
+Cleaning rules should be minimal, documented, and consistently applied.
+Valid unusual observations should not automatically be removed merely because they are extreme.
+13. Manual Smoke Test
+After implementation, the following workflow should be performed manually.
+	1	Create the documented Python environment.
+	2	Install the documented dependencies.
+	3	Launch the application.
+	4	Confirm that the CLI menu appears.
+	5	Select the overall summary.
+	6	Confirm that listing count, price, and availability information appears.
+	7	Select price by neighbourhood group.
+	8	Confirm that neighbourhood groups and price statistics appear.
+	9	Select room-type summary.
+	10	Confirm that room types and statistics appear.
+	11	Select availability summary.
+	12	Confirm that availability statistics appear.
+	13	Enter an invalid menu choice such as 99.
+	14	Confirm that the program responds with a useful error message rather than crashing.
+	15	Select the exit option.
+	16	Confirm that the application terminates normally.
+The manual smoke test should be performed using the included AB_NYC_2019.csv dataset.
+14. Final Verification
+Before the repository is considered complete, verify:
+Code
+	•	The application launches successfully.
+	•	The dataset loads successfully.
+	•	Required columns are validated.
+	•	Cleaning behaves as documented.
+	•	Analysis results are calculated correctly.
+	•	CLI choices work.
+	•	Invalid input is handled.
+	•	No unnecessary dependencies were introduced.
+Tests
+	•	The automated test suite runs successfully.
+	•	Normal cases are covered.
+	•	Important edge cases are covered.
+	•	Tests use deterministic data where appropriate.
+Dataset
+	•	data/AB_NYC_2019.csv is present.
+	•	The source dataset has not been unintentionally modified.
+	•	The application uses the included dataset.
+Documentation
+	•	README contains installation instructions.
+	•	README contains usage instructions.
+	•	README explains testing.
+	•	README contains the manual smoke-test procedure.
+	•	README documents the AI-assisted workflow.
+	•	README identifies an accepted AI recommendation.
+	•	README identifies a changed or rejected AI recommendation.
+	•	README explains independent verification.
+	•	docs/plan.md is present.
+Repository quality
+	•	.gitignore is present.
+	•	Virtual environments are not committed.
+	•	Python cache files are not committed.
+	•	Temporary/generated files are not committed.
+	•	File and function names are clear.
+	•	The project can be understood and reproduced by another developer.
+15. Development Sequence
+The Builder should implement the project in the following order:
+Phase 1 — Repository Foundation
+	1	Create the proposed directory structure.
+	2	Configure the Python project.
+	3	Add the minimal dependencies.
+	4	Confirm the dataset is located at data/AB_NYC_2019.csv.
+Phase 2 — Data Loading
+	5	Implement CSV loading.
+	6	Validate required columns.
+	7	Implement basic data cleaning.
+	8	Add data-loader tests.
+Phase 3 — Analysis
+	9	Implement overall summary.
+	10	Implement price-by-neighbourhood analysis.
+	11	Implement room-type analysis.
+	12	Implement availability analysis.
+	13	Add automated tests for each analysis.
+Phase 4 — CLI
+	14	Implement the menu.
+	15	Connect menu options to analysis functions.
+	16	Implement invalid-input handling.
+	17	Implement normal program exit.
+Phase 5 — Verification
+	18	Run the automated tests.
+	19	Perform the manual smoke test using the real dataset.
+	20	Correct any discovered issues.
+	21	Run the complete test suite again.
+Phase 6 — Documentation
+	22	Complete the README.
+	23	Document actual AI-assisted decisions.
+	24	Document independent verification.
+	25	Review docs/plan.md.
+	26	Perform a final repository-quality review.
+16. Architectural Principle
+The project should maintain a simple separation of responsibilities:
+	•	Data loader: obtains and prepares the data.
+	•	Analysis module: performs calculations and returns results.
+	•	CLI: handles user interaction and displays results.
+	•	Tests: independently verify the behavior of the loader and analysis.
+	•	Documentation: explains how the project works and how AI-assisted development decisions were verified.
+The implementation should favor straightforward, readable Python over unnecessary abstraction or additional frameworks.
+This plan is deliberately scoped so the Builder has enough structure to produce a credible college project while still leaving clear evidence of your own technical decisions. The most important architectural choice is the separation between data loading → analysis → CLI, because it gives you something concrete to justify and makes the automated tests substantially easier to write.
+
+[STUDENT]
+
+I reviewed your proposed architecture and want to make several decisions before finalizing the plan.
+Please revise the plan with these changes:
+	1	Remove pyproject.toml. I want to keep the project simple and use only requirements.txt for dependencies.
+	2	Make the price-cleaning rule explicit: prices that are non-numeric or less than or equal to zero should be excluded from price-based calculations. Please explain this as a project decision rather than silently applying it.
+	3	Make the availability analysis include all four of these:
+	◦	average availability
+	◦	median availability
+	◦	number of listings with zero availability
+	◦	percentage of listings with zero availability
+	4	Keep valid extreme prices rather than automatically removing outliers. The application should report both mean and median so the effect of extreme values can be considered.
+	5	Keep the project as a simple command-line application with pandas and pytest. Do not add a web interface, database, machine learning, visualization framework, API, or other unnecessary dependencies.
+	6	Keep the separation between data loading, analysis, and CLI because I want the analysis functions to be independently testable.
+Please provide the revised final docs/plan.md reflecting these decisions. Do not implement any code yet.
+
+[AGENT]
+
+Below is the revised final docs/plan.md. I’ve incorporated all six decisions, including removing pyproject.toml, making the price rule an explicit documented project decision, and requiring all four availability measures.
+NYC Airbnb Price & Availability Analyzer — Implementation Plan
+1. Project Overview
+The NYC Airbnb Price & Availability Analyzer is a small Python command-line data-analysis application.
+The application will read the included New York City Airbnb Open Data CSV file and provide summary information about Airbnb listings, including prices, neighbourhood groups, room types, and availability.
+The project is intentionally limited in scope. It will use Python, pandas for data processing, and pytest for automated testing.
+The project will not use machine learning, web scraping, a database, a web application, a visualization framework, an external API, or other unnecessary dependencies.
+A key architectural decision is to separate the application into three responsibilities:
+	1	Data loading and cleaning
+	2	Data analysis
+	3	Command-line interaction
+This separation allows the analysis functions to be independently tested without requiring the CLI or the full application to run.
+
+2. Project Requirements
+The application must:
+	•	Read data/AB_NYC_2019.csv.
+	•	Validate that required dataset columns are available.
+	•	Perform basic, documented data cleaning.
+	•	Provide useful summary analysis through a command-line interface.
+	•	Handle invalid user input gracefully.
+	•	Include meaningful automated tests.
+	•	Include the dataset in the repository.
+	•	Include setup and usage documentation.
+	•	Document AI-assisted development decisions.
+	•	Document independent verification of AI-assisted recommendations and implementation.
+The application will provide four main analyses:
+	1	Overall listing summary.
+	2	Price statistics by neighbourhood group.
+	3	Price and listing statistics by room type.
+	4	Availability summary.
+The availability summary will include all four required measures:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability.
+The project will not include:
+	•	Machine learning.
+	•	Predictive modeling.
+	•	Web scraping.
+	•	Databases.
+	•	Web applications.
+	•	Visualization frameworks.
+	•	External APIs.
+	•	User authentication.
+	•	Unnecessary third-party dependencies.
+
+3. Repository Structure
+repository-b/
+│
+├── data/
+│   └── AB_NYC_2019.csv
+│
+├── src/
+│   └── nyc_airbnb/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── data_loader.py
+│       └── analysis.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_analysis.py
+│   └── fixtures/
+│       └── small_airbnb.csv
+│
+├── docs/
+│   └── plan.md
+│
+├── README.md
+├── requirements.txt
+└── .gitignore
+pyproject.toml is intentionally not included. The project will use requirements.txt as the simple dependency-management approach.
+
+4. File Responsibilities
+data/AB_NYC_2019.csv
+Contains the supplied New York City Airbnb Open Data dataset.
+The application will read this file but will not modify the source CSV.
+src/nyc_airbnb/data_loader.py
+Responsible for:
+	•	Loading the CSV with pandas.
+	•	Checking that the file exists.
+	•	Checking required columns.
+	•	Performing basic data cleaning.
+	•	Returning data suitable for analysis.
+The data loader should not perform the application's summary analyses.
+src/nyc_airbnb/analysis.py
+Contains the project's data-analysis functions.
+Expected analysis functions will cover:
+	•	Overall summary.
+	•	Price by neighbourhood group.
+	•	Room-type summary.
+	•	Availability summary.
+Analysis functions should accept DataFrames and return results rather than directly handling command-line input.
+This separation is an intentional project decision because it allows the statistical calculations to be independently tested.
+src/nyc_airbnb/cli.py
+Responsible for:
+	•	Starting the application.
+	•	Displaying the menu.
+	•	Reading user choices.
+	•	Calling analysis functions.
+	•	Displaying formatted results.
+	•	Handling invalid menu choices.
+	•	Exiting the application.
+The CLI should not contain the main statistical calculations.
+tests/test_data_loader.py
+Tests:
+	•	Successful CSV loading.
+	•	Missing file behavior.
+	•	Missing required columns.
+	•	Basic cleaning behavior.
+	•	Price-related cleaning rules where appropriate.
+tests/test_analysis.py
+Tests:
+	•	Overall statistics.
+	•	Price calculations.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Availability calculations.
+	•	Zero-availability counts and percentages.
+	•	Missing-value behavior.
+	•	Important edge cases.
+tests/fixtures/small_airbnb.csv
+A small deterministic dataset used for automated tests.
+The fixture should contain enough rows to test grouping, price calculations, missing values, room types, and availability.
+Using a small fixture keeps the tests fast and makes expected results easy to calculate independently.
+README.md
+Documents:
+	•	Project purpose.
+	•	Dataset.
+	•	Features.
+	•	Installation.
+	•	Usage.
+	•	Testing.
+	•	Manual smoke testing.
+	•	AI-assisted workflow.
+	•	Accepted AI recommendation.
+	•	Changed/rejected AI recommendation.
+	•	Independent verification.
+requirements.txt
+Contains only the dependencies required by the project.
+The planned dependencies are:
+	•	pandas
+	•	pytest
+No additional libraries should be introduced unless a concrete project requirement makes one necessary.
+.gitignore
+Prevents temporary Python files, virtual environments, caches, and other generated files from being committed.
+
+5. Data Format and Assumptions
+The project uses the New York City Airbnb Open Data dataset from 2019.
+The expected file is:
+data/AB_NYC_2019.csv
+The dataset contains approximately 49,000 NYC Airbnb listings and 16 columns.
+Important fields include:
+	•	id
+	•	name
+	•	host_id
+	•	host_name
+	•	neighbourhood_group
+	•	neighbourhood
+	•	latitude
+	•	longitude
+	•	room_type
+	•	price
+	•	minimum_nights
+	•	number_of_reviews
+	•	last_review
+	•	reviews_per_month
+	•	calculated_host_listings_count
+	•	availability_365
+The analysis will primarily use:
+	•	neighbourhood_group
+	•	room_type
+	•	price
+	•	availability_365
+The project assumes that:
+	•	price represents the listing's nightly price in the dataset.
+	•	availability_365 represents the number of available days in the 365-day period recorded by the dataset.
+	•	neighbourhood_group and room_type are categorical variables.
+	•	Numeric analysis variables can be converted to numeric values when necessary.
+
+6. Data-Cleaning Decisions
+Cleaning will be limited to decisions necessary for reliable analysis.
+6.1 Price cleaning rule
+The project explicitly defines the following price-cleaning rule:
+Prices that are non-numeric or less than or equal to zero will be excluded from price-based calculations.
+This is an intentional project decision rather than an implicit implementation detail.
+The reason for this decision is that the application is analyzing Airbnb listing prices. A non-numeric value cannot be used in a numeric price calculation, and a price of zero or below does not represent a valid positive nightly listing price for the intended analysis.
+Therefore, price-based analyses will only use observations with valid positive numeric prices.
+This rule should be documented in the README and covered by automated tests.
+6.2 Extreme prices
+Valid extreme prices will not automatically be removed.
+The project will not apply an arbitrary maximum-price cutoff or statistical outlier-removal procedure.
+If a price is numeric and greater than zero, it remains eligible for price-based calculations, even if it is unusually large.
+The application will report both:
+	•	Mean price.
+	•	Median price.
+This allows users to consider how unusually large valid prices may affect the mean compared with the median.
+This is an intentional design decision to avoid silently changing the dataset by removing valid observations.
+6.3 Missing values
+Missing values will be handled according to the analysis being performed rather than deleting every row with any missing value.
+For example:
+	•	Price analysis requires a valid positive numeric price.
+	•	Availability analysis requires a usable availability value.
+	•	Room-type analysis requires a valid room type.
+	•	Neighbourhood-group analysis requires a valid neighbourhood group.
+Unrelated missing values should not cause an otherwise usable observation to be discarded unnecessarily.
+6.4 Availability cleaning
+availability_365 should be treated as a numeric variable.
+Rows that do not contain a usable availability value should not be included in availability calculations.
+The application should not unnecessarily modify valid availability values.
+
+7. Core Functionality
+7.1 Overall Summary
+The application will display:
+	•	Total number of listings.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Price statistics will use only valid positive numeric prices according to the documented price-cleaning rule.
+Availability statistics will use valid availability values.
+7.2 Price by Neighbourhood Group
+The application will group listings by neighbourhood_group and display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The price-cleaning rule will apply to this analysis.
+Valid extreme prices will remain included.
+7.3 Room-Type Summary
+The application will group listings by room_type and display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The price-cleaning rule will apply to the price statistics.
+The grouping should not assume that only currently known room-type categories can exist.
+7.4 Availability Summary
+The application will calculate all four required availability measures:
+	1	Average availability
+	2	Median availability
+	3	Number of listings with zero availability
+	4	Percentage of listings with zero availability
+The percentage will be calculated using the valid availability observations as the denominator.
+Conceptually:
+zero-availability percentage =
+    (number of listings with availability of 0 /
+     number of listings with valid availability) × 100
+This denominator should be documented so the percentage is interpretable.
+
+8. CLI Design
+The command-line interface will use a simple menu.
+The intended structure is:
+NYC Airbnb Price & Availability Analyzer
+
+1. Overall summary
+2. Price by neighbourhood group
+3. Summary by room type
+4. Availability summary
+5. Exit
+
+Select an option:
+The user should be able to:
+	1	Select an analysis.
+	2	View its results.
+	3	Return to the menu.
+	4	Exit the program.
+Invalid choices should result in a readable error message rather than an unexpected crash.
+The CLI will remain intentionally simple because the goal is to demonstrate data analysis rather than build a sophisticated command-line framework.
+
+9. Architectural Separation
+The application will maintain three primary responsibilities.
+Data loading
+data_loader.py handles:
+	•	Reading the CSV.
+	•	Validating required columns.
+	•	Preparing data for analysis.
+Analysis
+analysis.py handles:
+	•	Calculating summary statistics.
+	•	Grouping data.
+	•	Calculating price statistics.
+	•	Calculating availability statistics.
+The analysis functions should be independent of the CLI.
+Command-line interface
+cli.py handles:
+	•	User interaction.
+	•	Menu selection.
+	•	Calling analysis functions.
+	•	Displaying results.
+This separation is an intentional technical decision because it makes the analysis functions independently testable.
+For example, an analysis function can be tested by passing it a small DataFrame without starting the CLI or reading the full dataset.
+
+10. Testing Strategy
+Automated tests will use pytest.
+The analysis tests should primarily use the small fixture dataset rather than the full Airbnb dataset.
+This makes tests:
+	•	Fast.
+	•	Deterministic.
+	•	Easy to understand.
+	•	Independent of the exact contents of the large production dataset.
+10.1 Data-loader tests
+Tests should cover:
+	•	Successful loading of a valid CSV.
+	•	Missing file behavior.
+	•	Missing required columns.
+	•	Basic cleaning behavior.
+	•	Non-numeric price values.
+	•	Zero prices.
+	•	Negative prices.
+The price tests should verify that non-numeric and less-than-or-equal-to-zero prices are excluded from price-based analysis.
+10.2 Analysis tests
+Tests should verify:
+	•	Overall listing counts.
+	•	Mean price.
+	•	Median price.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Mean availability.
+	•	Median availability.
+	•	Zero-availability count.
+	•	Zero-availability percentage.
+Expected values should be calculated from the small fixture so that the tests have known outcomes.
+10.3 Extreme-price test
+The test fixture should include at least one unusually large but valid positive price.
+The test should verify that this observation is not removed automatically.
+The test should also demonstrate that the mean and median can differ when an extreme valid price is present.
+This verifies the project's explicit decision to retain valid extreme prices.
+10.4 Missing-value tests
+Tests should verify that:
+	•	Missing price values do not enter price calculations.
+	•	Missing availability values do not enter availability calculations.
+	•	Missing room types are handled appropriately.
+	•	Missing neighbourhood groups do not produce misleading grouped results.
+10.5 Availability tests
+The availability tests should explicitly verify all four required outputs:
+	•	Average availability.
+	•	Median availability.
+	•	Number of zero-availability listings.
+	•	Percentage of zero-availability listings.
+The fixture should contain at least one zero-availability listing so the count and percentage can be tested.
+10.6 Edge cases
+Tests should consider:
+	•	Empty DataFrame.
+	•	All prices invalid.
+	•	All availability values missing.
+	•	No zero-availability listings.
+	•	All valid availability values equal to zero.
+	•	Missing required columns.
+	•	Invalid numeric values.
+	•	Invalid CLI choices.
+10.7 CLI tests
+Where practical, tests should verify:
+	•	Valid menu selections.
+	•	Invalid menu selections.
+	•	Normal exit behavior.
+If CLI testing becomes disproportionately complicated, the main automated testing effort should remain focused on the data loader and analysis functions, while the complete CLI workflow is verified through the manual smoke test.
+
+11. Potential Risks and Design Concerns
+11.1 Scope creep
+The project should remain a small command-line data-analysis application.
+The following should not be added:
+	•	Machine learning.
+	•	Predictive modeling.
+	•	Web interfaces.
+	•	Databases.
+	•	Web scraping.
+	•	Visualization frameworks.
+	•	APIs.
+	•	Authentication.
+	•	Complex command-line frameworks.
+These features are outside the project's stated goal and would add unnecessary complexity.
+11.2 AI-generated errors
+AI recommendations and generated code should be treated as suggestions rather than automatically correct solutions.
+Important decisions should be independently checked against:
+	•	The actual dataset.
+	•	Python behavior.
+	•	pandas behavior.
+	•	Automated test results.
+	•	Manual execution.
+11.3 Dataset-dependent tests
+Automated tests should use a small deterministic fixture whenever possible.
+The full dataset should primarily be used for manual and end-to-end verification.
+11.4 Price interpretation
+Airbnb prices may contain extreme valid observations.
+The application will retain these observations rather than automatically removing them.
+Reporting both mean and median provides two different summaries and allows the effect of extreme values to be considered.
+The application should not claim that either statistic completely represents a "typical" listing.
+11.5 Data-cleaning assumptions
+Cleaning rules should be explicit and documented.
+In particular, the project intentionally excludes:
+	•	Non-numeric prices.
+	•	Prices less than or equal to zero.
+Valid positive extreme prices remain in the analysis.
+11.6 File-path issues
+The application should have a documented method for locating:
+data/AB_NYC_2019.csv
+The user should not have to edit Python source code to specify the dataset location.
+
+12. Manual Smoke Test
+After implementation, the following workflow should be performed manually using the included AB_NYC_2019.csv dataset.
+Step 1 — Environment setup
+Create the documented Python environment and install the dependencies listed in requirements.txt.
+Step 2 — Launch
+Start the application using the documented command.
+Verify that the application displays:
+NYC Airbnb Price & Availability Analyzer
+and the analysis menu.
+Step 3 — Overall summary
+Select:
+1
+Verify that the application displays:
+	•	Listing count.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Step 4 — Neighbourhood price analysis
+Select:
+2
+Verify that neighbourhood groups and their price statistics are displayed.
+Verify that both mean and median price are shown.
+Step 5 — Room-type analysis
+Select:
+3
+Verify that room types and their listing/price statistics are displayed.
+Step 6 — Availability analysis
+Select:
+4
+Verify that all four required measures are displayed:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability.
+Step 7 — Invalid input
+Enter an invalid menu choice such as:
+99
+Verify that the application displays a useful error message and does not crash.
+Step 8 — Exit
+Select:
+5
+Verify that the application terminates normally.
+
+13. Final Verification
+Before the repository is considered complete, verify the following.
+Code
+	•	Application launches successfully. 
+	•	Dataset loads successfully. 
+	•	Required columns are validated. 
+	•	Cleaning behavior matches the documented decisions. 
+	•	Non-numeric prices are excluded from price calculations. 
+	•	Prices less than or equal to zero are excluded from price calculations. 
+	•	Valid extreme prices remain included. 
+	•	Mean and median price are both calculated. 
+	•	All four availability measures are calculated. 
+	•	CLI choices work. 
+	•	Invalid CLI input is handled. 
+	•	No unnecessary dependencies were introduced. 
+Tests
+	•	Automated tests run successfully. 
+	•	Normal cases are covered. 
+	•	Price-cleaning rules are tested. 
+	•	Valid extreme prices are tested. 
+	•	Availability count and percentage are tested. 
+	•	Important edge cases are covered. 
+	•	Tests use deterministic fixture data where appropriate. 
+Dataset
+	•	data/AB_NYC_2019.csv is present. 
+	•	The source dataset has not been unintentionally modified. 
+	•	The application uses the included dataset. 
+Documentation
+	•	README contains project overview. 
+	•	README identifies the dataset and source. 
+	•	README contains installation instructions. 
+	•	README contains usage instructions. 
+	•	README explains testing. 
+	•	README contains the manual smoke-test procedure. 
+	•	README documents the AI-assisted workflow. 
+	•	README identifies an accepted AI recommendation. 
+	•	README identifies a changed or rejected AI recommendation. 
+	•	README explains independent verification. 
+	•	docs/plan.md is present. 
+Repository quality
+	•	.gitignore is present. 
+	•	Virtual environments are not committed. 
+	•	Python cache files are not committed. 
+	•	Temporary/generated files are not committed. 
+	•	File and function names are clear. 
+	•	The project can be understood and reproduced by another developer. 
+	•	The project contains only the dependencies necessary for its stated purpose. 
+
+14. Development Sequence
+The Builder should implement the project in the following order.
+Phase 1 — Repository Foundation
+	1	Create the proposed directory structure.
+	2	Create requirements.txt with the minimal dependencies.
+	3	Create the basic Python package structure.
+	4	Confirm the dataset is located at data/AB_NYC_2019.csv.
+	5	Create .gitignore.
+Phase 2 — Data Loading
+	6	Implement CSV loading.
+	7	Validate required columns.
+	8	Implement documented data-cleaning behavior.
+	9	Implement the explicit price rule:
+	◦	Exclude non-numeric prices.
+	◦	Exclude prices less than or equal to zero.
+	◦	Retain valid positive extreme prices.
+	10	Add data-loader tests.
+Phase 3 — Analysis
+	11	Implement the overall summary.
+	12	Implement price-by-neighbourhood-group analysis.
+	13	Implement room-type analysis.
+	14	Implement availability analysis.
+	15	Ensure availability analysis returns all four required measures.
+	16	Add automated tests for each analysis.
+	17	Add edge-case tests.
+Phase 4 — CLI
+	18	Implement the simple menu.
+	19	Connect menu options to analysis functions.
+	20	Implement invalid-input handling.
+	21	Implement normal program exit.
+	22	Keep CLI logic separate from analysis logic.
+Phase 5 — Automated Verification
+	23	Run the complete pytest test suite.
+	24	Review failures and correct implementation issues.
+	25	Run the complete test suite again after corrections.
+Phase 6 — Manual Verification
+	26	Perform the manual smoke test using the real dataset.
+	27	Verify all four availability outputs.
+	28	Verify that price statistics are produced using the documented cleaning rule.
+	29	Verify that valid extreme prices are retained.
+	30	Verify invalid CLI input does not crash the program.
+Phase 7 — Documentation
+	31	Complete the README.
+	32	Document the dataset and project decisions.
+	33	Document installation and usage.
+	34	Document automated testing.
+	35	Document the manual smoke test.
+	36	Document the actual AI-assisted development workflow.
+	37	Identify an AI recommendation that was accepted.
+	38	Identify an AI recommendation that was changed or rejected.
+	39	Document independent verification.
+Phase 8 — Final Repository Review
+	40	Review docs/plan.md against the completed implementation.
+	41	Confirm the implementation matches the documented architecture.
+	42	Confirm only necessary dependencies are present.
+	43	Confirm no temporary or generated files are committed.
+	44	Confirm all automated tests pass.
+	45	Confirm the manual smoke test has been completed.
+	46	Review the repository as a final reproducibility check.
+
+15. Final Architectural Decision
+The project will use a deliberately simple architecture:
+CSV Dataset
+    ↓
+Data Loader / Cleaning
+    ↓
+Analysis Functions
+    ↓
+Command-Line Interface
+    ↓
+Terminal Output
+The three main application responsibilities will remain separate:
+	•	Data loader: obtains and prepares the data.
+	•	Analysis module: performs calculations and returns results.
+	•	CLI: handles user interaction and displays results.
+This separation is intentional because it keeps the application understandable while allowing the analysis functions to be independently tested.
+The project will use only the dependencies necessary for its purpose: pandas for data analysis and pytest for automated testing.
+No web interface, database, machine learning, visualization framework, API, or other unnecessary functionality will be added.
+This version is now the final architecture baseline for the Builder. No implementation is implied by this plan; the Builder should treat the documented decisions—especially the positive-price rule, retention of valid extreme prices, and four-part availability analysis—as requirements rather than suggestions.
+
+[STUDENT]
+
+I reviewed the full grading rubric, and I noticed that Repository B has a separate 10-point "Containerization and Reproducibility" category.
+My current plan does not include Docker, so I need to revise the architecture before finalizing the plan.
+For this project, I want to keep containerization as simple as possible while satisfying the rubric.
+Please revise the architecture to include:
+	•	A suitable Dockerfile
+	•	A suitable .dockerignore
+	•	A containerized way to run the NYC Airbnb analyzer
+	•	A containerized way to run the automated tests, if practical
+	•	Clear Docker build and run instructions for the README
+	•	Verification that the built image actually runs a meaningful part of the project
+	•	Documentation of the containerization smoke test
+Please also evaluate whether Docker Compose is necessary.
+Because this project has only one Python CLI application and no database, web server, or other separate service, I expect Docker Compose may not be necessary. If you agree, explain why.
+Please also discuss:
+	•	How the CSV dataset should be made available to the container
+	•	Whether the dataset should be copied into the image or mounted as a volume
+	•	How the Docker working directory and Python path should be configured
+	•	How the container should launch the CLI
+	•	How tests can be run inside the container
+	•	What files should be excluded using .dockerignore
+	•	Any reproducibility concerns
+Do not implement the Dockerfile yet. This is still the Architect stage.
+Update the implementation plan to reflect the final containerization decision.
+
+[AGENT]
+
+Yes. For this project, Docker Compose is not necessary. There is only one application process, no database, no web service, and no second container that needs orchestration. A single Docker image with separate commands for running the CLI and tests is simpler and directly addresses the reproducibility rubric.
+The main containerization decision I recommend is: copy the dataset into the image rather than require a host volume for normal execution. That makes the image self-contained and reproducible. A volume can still be documented as an optional development/testing mechanism, but it should not be required for the normal smoke test.
+Below is the revised architecture and complete docs/plan.md.
+NYC Airbnb Price & Availability Analyzer — Implementation Plan
+1. Project Overview
+The NYC Airbnb Price & Availability Analyzer is a small Python command-line data-analysis application.
+The application will read the included New York City Airbnb Open Data CSV file and provide summary information about Airbnb listings, including prices, neighbourhood groups, room types, and availability.
+The project is intentionally limited in scope. It will use:
+	•	Python
+	•	pandas for data processing
+	•	pytest for automated testing
+	•	Docker for containerization and reproducibility
+The project will not use:
+	•	Machine learning
+	•	Web scraping
+	•	A database
+	•	A web application
+	•	A visualization framework
+	•	An external API
+	•	Docker Compose
+	•	Other unnecessary dependencies
+A key architectural decision is to separate the application into three responsibilities:
+	1	Data loading and cleaning
+	2	Data analysis
+	3	Command-line interaction
+This separation allows the analysis functions to be independently tested without requiring the CLI or the full application to run.
+A fourth project concern is containerization. Docker will provide a reproducible environment in which the application and its automated tests can be run.
+
+2. Project Requirements
+The application must:
+	•	Read data/AB_NYC_2019.csv.
+	•	Validate that required dataset columns are available.
+	•	Perform basic, documented data cleaning.
+	•	Provide useful summary analysis through a command-line interface.
+	•	Handle invalid user input gracefully.
+	•	Include meaningful automated tests.
+	•	Include the dataset in the repository.
+	•	Include setup and usage documentation.
+	•	Include a Dockerfile.
+	•	Include a .dockerignore.
+	•	Provide a containerized way to run the CLI application.
+	•	Provide a containerized way to run automated tests.
+	•	Document Docker build and run commands.
+	•	Include a containerization smoke test.
+	•	Verify that the built image actually runs a meaningful part of the application.
+	•	Document AI-assisted development decisions.
+	•	Document independent verification of AI-assisted recommendations and implementation.
+The application will provide four main analyses:
+	1	Overall listing summary.
+	2	Price statistics by neighbourhood group.
+	3	Price and listing statistics by room type.
+	4	Availability summary.
+The availability summary will include all four required measures:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability.
+The project will not include:
+	•	Machine learning.
+	•	Predictive modeling.
+	•	Web scraping.
+	•	Databases.
+	•	Web applications.
+	•	Visualization frameworks.
+	•	External APIs.
+	•	User authentication.
+	•	Docker Compose.
+	•	Unnecessary third-party dependencies.
+
+3. Repository Structure
+repository-b/
+│
+├── data/
+│   └── AB_NYC_2019.csv
+│
+├── src/
+│   └── nyc_airbnb/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── data_loader.py
+│       └── analysis.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_analysis.py
+│   └── fixtures/
+│       └── small_airbnb.csv
+│
+├── docs/
+│   └── plan.md
+│
+├── README.md
+├── requirements.txt
+├── Dockerfile
+├── .dockerignore
+└── .gitignore
+pyproject.toml is intentionally not included.
+requirements.txt is used as the project's simple dependency-management mechanism.
+Docker Compose is also intentionally not included because the project has only one application and does not require multiple cooperating services.
+
+4. File Responsibilities
+data/AB_NYC_2019.csv
+Contains the supplied New York City Airbnb Open Data dataset.
+The application will read this file but will not modify the source CSV.
+The dataset will be copied into the Docker image so the normal containerized application is self-contained.
+src/nyc_airbnb/data_loader.py
+Responsible for:
+	•	Loading the CSV with pandas.
+	•	Checking that the file exists.
+	•	Checking required columns.
+	•	Performing basic data cleaning.
+	•	Returning data suitable for analysis.
+The data loader should not perform the application's summary analyses.
+src/nyc_airbnb/analysis.py
+Contains the project's data-analysis functions.
+Expected analysis functions will cover:
+	•	Overall summary.
+	•	Price by neighbourhood group.
+	•	Room-type summary.
+	•	Availability summary.
+Analysis functions should accept DataFrames and return results rather than directly handling command-line input.
+This separation is an intentional project decision because it allows the statistical calculations to be independently tested.
+src/nyc_airbnb/cli.py
+Responsible for:
+	•	Starting the application.
+	•	Displaying the menu.
+	•	Reading user choices.
+	•	Calling analysis functions.
+	•	Displaying formatted results.
+	•	Handling invalid menu choices.
+	•	Exiting the application.
+The CLI should not contain the main statistical calculations.
+tests/test_data_loader.py
+Tests:
+	•	Successful CSV loading.
+	•	Missing file behavior.
+	•	Missing required columns.
+	•	Basic cleaning behavior.
+	•	Price-related cleaning rules where appropriate.
+tests/test_analysis.py
+Tests:
+	•	Overall statistics.
+	•	Price calculations.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Availability calculations.
+	•	Zero-availability counts and percentages.
+	•	Missing-value behavior.
+	•	Important edge cases.
+tests/fixtures/small_airbnb.csv
+A small deterministic dataset used for automated tests.
+The fixture should contain enough rows to test grouping, price calculations, missing values, room types, and availability.
+Using a small fixture keeps the tests fast and makes expected results easy to calculate independently.
+README.md
+Documents:
+	•	Project purpose.
+	•	Dataset.
+	•	Features.
+	•	Installation.
+	•	Local usage.
+	•	Docker installation/prerequisites.
+	•	Docker build instructions.
+	•	Containerized CLI usage.
+	•	Containerized test usage.
+	•	Manual smoke testing.
+	•	Containerization smoke testing.
+	•	AI-assisted workflow.
+	•	Accepted AI recommendation.
+	•	Changed/rejected AI recommendation.
+	•	Independent verification.
+requirements.txt
+Contains only the dependencies required by the project.
+The planned dependencies are:
+	•	pandas
+	•	pytest
+No additional libraries should be introduced unless a concrete project requirement makes one necessary.
+Dockerfile
+Defines the reproducible runtime environment for the project.
+The Dockerfile should:
+	•	Use a suitable lightweight Python base image.
+	•	Set an appropriate working directory.
+	•	Install the dependencies from requirements.txt.
+	•	Copy the application source code into the image.
+	•	Copy the dataset into the image.
+	•	Copy the tests into the image if tests are intended to run from the same image.
+	•	Configure the Python path so the src/ package can be imported reliably.
+	•	Define the default command that launches the CLI.
+The Dockerfile should remain simple and should not introduce unnecessary services or build stages.
+.dockerignore
+Prevents unnecessary local files from being sent to the Docker build context.
+It should exclude items such as:
+	•	.git
+	•	.gitignore
+	•	.dockerignore
+	•	Python cache directories
+	•	__pycache__
+	•	.pytest_cache
+	•	Local virtual environments
+	•	IDE/editor configuration
+	•	Temporary files
+	•	Other generated files that are not needed to build the application
+The production dataset should not be excluded because it is required by the application and will be copied into the image.
+.gitignore
+Prevents local development artifacts from being committed to the repository, including virtual environments, Python caches, test caches, and other generated files.
+
+5. Data Format and Assumptions
+The project uses the New York City Airbnb Open Data dataset from 2019.
+The expected file is:
+data/AB_NYC_2019.csv
+The dataset contains approximately 49,000 NYC Airbnb listings and 16 columns.
+Important fields include:
+	•	id
+	•	name
+	•	host_id
+	•	host_name
+	•	neighbourhood_group
+	•	neighbourhood
+	•	latitude
+	•	longitude
+	•	room_type
+	•	price
+	•	minimum_nights
+	•	number_of_reviews
+	•	last_review
+	•	reviews_per_month
+	•	calculated_host_listings_count
+	•	availability_365
+The analysis will primarily use:
+	•	neighbourhood_group
+	•	room_type
+	•	price
+	•	availability_365
+The project assumes that:
+	•	price represents the listing's nightly price in the dataset.
+	•	availability_365 represents the number of available days in the 365-day period recorded by the dataset.
+	•	neighbourhood_group and room_type are categorical variables.
+	•	Numeric analysis variables can be converted to numeric values when necessary.
+
+6. Data-Cleaning Decisions
+Cleaning will be limited to decisions necessary for reliable analysis.
+6.1 Price cleaning rule
+The project explicitly defines the following price-cleaning rule:
+Prices that are non-numeric or less than or equal to zero will be excluded from price-based calculations.
+This is an intentional project decision rather than an implicit implementation detail.
+The reason is that the application is analyzing Airbnb listing prices. A non-numeric value cannot be used in a numeric price calculation, and a price of zero or below does not represent a valid positive nightly listing price for the intended analysis.
+Therefore, price-based analyses will only use valid positive numeric prices.
+This rule should be documented in the README and covered by automated tests.
+6.2 Extreme prices
+Valid extreme prices will not automatically be removed.
+The project will not apply an arbitrary maximum-price cutoff or statistical outlier-removal procedure.
+If a price is numeric and greater than zero, it remains eligible for price-based calculations, even if it is unusually large.
+The application will report both:
+	•	Mean price.
+	•	Median price.
+This allows users to consider how unusually large valid prices may affect the mean compared with the median.
+This is an intentional design decision to avoid silently changing the dataset by removing valid observations.
+6.3 Missing values
+Missing values will be handled according to the analysis being performed rather than deleting every row with any missing value.
+For example:
+	•	Price analysis requires a valid positive numeric price.
+	•	Availability analysis requires a usable availability value.
+	•	Room-type analysis requires a valid room type.
+	•	Neighbourhood-group analysis requires a valid neighbourhood group.
+Unrelated missing values should not cause an otherwise usable observation to be discarded unnecessarily.
+6.4 Availability cleaning
+availability_365 should be treated as a numeric variable.
+Rows that do not contain a usable availability value should not be included in availability calculations.
+The application should not unnecessarily modify valid availability values.
+
+7. Core Functionality
+7.1 Overall Summary
+The application will display:
+	•	Total number of listings.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Price statistics will use only valid positive numeric prices according to the documented price-cleaning rule.
+Availability statistics will use valid availability values.
+7.2 Price by Neighbourhood Group
+The application will group listings by neighbourhood_group and display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The price-cleaning rule will apply to this analysis.
+Valid extreme prices will remain included.
+7.3 Room-Type Summary
+The application will group listings by room_type and display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The price-cleaning rule will apply to the price statistics.
+The grouping should not assume that only currently known room-type categories can exist.
+7.4 Availability Summary
+The application will calculate all four required availability measures:
+	1	Average availability
+	2	Median availability
+	3	Number of listings with zero availability
+	4	Percentage of listings with zero availability
+The percentage will use valid availability observations as the denominator.
+Conceptually:
+zero-availability percentage =
+    (number of listings with availability of 0 /
+     number of listings with valid availability) × 100
+This denominator should be documented so the percentage is interpretable.
+
+8. CLI Design
+The command-line interface will use a simple menu.
+The intended structure is:
+NYC Airbnb Price & Availability Analyzer
+
+1. Overall summary
+2. Price by neighbourhood group
+3. Summary by room type
+4. Availability summary
+5. Exit
+
+Select an option:
+The user should be able to:
+	1	Select an analysis.
+	2	View its results.
+	3	Return to the menu.
+	4	Exit the program.
+Invalid choices should result in a readable error message rather than an unexpected crash.
+The CLI will remain intentionally simple because the goal is to demonstrate data analysis rather than build a sophisticated command-line framework.
+
+9. Containerization Architecture
+9.1 Containerization goal
+Docker will provide a reproducible environment containing:
+	•	Python.
+	•	Required Python dependencies.
+	•	Application source code.
+	•	Tests.
+	•	The supplied dataset.
+The goal is to allow another user to build the same image from the repository and run the application without manually configuring the Python environment.
+9.2 Docker Compose decision
+Docker Compose is not necessary for this project.
+The project contains:
+	•	One Python CLI application.
+	•	No database.
+	•	No web server.
+	•	No background worker.
+	•	No message queue.
+	•	No separate application services.
+Docker Compose is primarily useful when multiple containers or services need to work together.
+Introducing Compose here would add configuration and commands without providing a meaningful benefit.
+Therefore, the project will use:
+Dockerfile
+as its only container orchestration/build configuration.
+This is both simpler and more appropriate for the project's scope.
+9.3 Dataset availability inside the container
+The primary approach will be to copy the dataset into the Docker image.
+The image will contain:
+/app/data/AB_NYC_2019.csv
+or an equivalent path determined by the final Docker working directory.
+This means the normal containerized application is self-contained.
+A user should be able to build the image and run the analyzer without separately mounting the dataset.
+Why copy the dataset into the image?
+This approach provides:
+	•	Reproducibility.
+	•	A self-contained application image.
+	•	A fixed dataset version associated with the source repository.
+	•	A simpler Docker smoke test.
+	•	Fewer runtime assumptions.
+The repository already contains the required dataset, so copying it during the Docker build is straightforward.
+9.4 Volume mounting
+A volume mount is not required for normal execution.
+An optional volume can be used during development if someone wants to experiment with a different CSV without rebuilding the image, but this is not part of the required workflow.
+The official README instructions should use the self-contained image rather than requiring a host volume.
+9.5 Docker working directory
+The container should use a predictable working directory, such as:
+/app
+The expected container structure should therefore resemble:
+/app/
+├── data/
+├── src/
+└── tests/
+Using a fixed working directory makes paths predictable and makes the container easier to understand.
+9.6 Python path
+The application source is located under:
+src/nyc_airbnb/
+The container must configure Python so that the package can be imported reliably.
+The planned approach is to configure the Python path to include:
+/app/src
+This avoids requiring users to modify Python files or execute commands from a particular source directory.
+The final implementation should choose one consistent Python-path approach and document it if necessary.
+9.7 Container startup
+The Docker image's default command should launch the CLI application.
+Therefore, a normal container run should result in the analyzer menu being displayed.
+Conceptually:
+docker build -t nyc-airbnb-analyzer .
+docker run --rm -it nyc-airbnb-analyzer
+The exact Dockerfile command will be determined during implementation.
+The important architectural requirement is that the default container command launches the CLI rather than opening a shell.
+9.8 Running tests inside the container
+The same image should contain pytest and the test suite.
+Tests can therefore be run by overriding the image's default command.
+Conceptually:
+docker run --rm nyc-airbnb-analyzer pytest
+This allows the automated tests to execute using the same Python environment and dependencies as the application.
+The final implementation should ensure that the test command can import the project package correctly.
+9.9 Docker image contents
+The image should contain only what is required for this project:
+	•	Python runtime.
+	•	pandas.
+	•	pytest.
+	•	Application source.
+	•	Tests.
+	•	Dataset.
+Development-only host artifacts should not be copied into the image.
+
+10. Dockerfile Requirements
+The Dockerfile should be intentionally simple.
+It should:
+	1	Start from a suitable lightweight Python base image.
+	2	Set the working directory.
+	3	Copy requirements.txt.
+	4	Install the required dependencies.
+	5	Copy the application source.
+	6	Copy the tests.
+	7	Copy the dataset.
+	8	Configure the Python path.
+	9	Define the default command that launches the CLI.
+The Dockerfile should not:
+	•	Install unnecessary system packages.
+	•	Start multiple services.
+	•	Include a database.
+	•	Include a web server.
+	•	Require Docker Compose.
+	•	Contain application logic that belongs in Python source files.
+The final Dockerfile should be short enough that another student can understand its purpose.
+
+11. .dockerignore Requirements
+The .dockerignore file should exclude unnecessary files from the Docker build context.
+It should exclude items such as:
+.git/
+.gitignore
+.dockerignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+.DS_Store
+Additional temporary or generated files can be excluded if they are created during development.
+The following should not be excluded:
+data/AB_NYC_2019.csv
+src/
+tests/
+requirements.txt
+Dockerfile
+The dataset must remain available to the Docker build because it is part of the reproducible application input.
+
+12. Docker Build and Run Workflow
+The README should document the following conceptual workflow.
+Build the image
+From the repository root:
+docker build -t nyc-airbnb-analyzer .
+This should build the application image using:
+	•	The Dockerfile.
+	•	requirements.txt.
+	•	The application source.
+	•	The tests.
+	•	The included dataset.
+Run the CLI
+docker run --rm -it nyc-airbnb-analyzer
+The container should launch the CLI automatically.
+The user should see the application menu and be able to perform the available analyses.
+Run automated tests
+docker run --rm nyc-airbnb-analyzer pytest
+This should execute the project's automated tests inside the container.
+The tests should not depend on software installed on the host other than Docker.
+
+13. Containerization Smoke Test
+The containerization smoke test is separate from the ordinary application smoke test.
+The purpose is to verify that the Docker image actually contains a working application rather than merely building successfully.
+After implementation, the following procedure should be performed.
+Step 1 — Build the image
+Run:
+docker build -t nyc-airbnb-analyzer .
+Verify that the image builds successfully.
+Step 2 — Launch the container
+Run:
+docker run --rm -it nyc-airbnb-analyzer
+Verify that the CLI starts.
+Step 3 — Run a meaningful analysis
+Select the overall summary from the CLI.
+Verify that the application reads the included dataset and produces meaningful listing, price, and availability results.
+This is important because it verifies more than merely starting Python inside Docker.
+Step 4 — Run automated tests
+Run:
+docker run --rm nyc-airbnb-analyzer pytest
+Verify that the project's automated test suite executes inside the container.
+Step 5 — Verify self-containment
+The normal CLI smoke test should not require the user to mount the dataset manually.
+This verifies that the CSV was successfully included in the image.
+The README should document the actual result of this smoke test after implementation rather than claiming success before the test has been performed.
+
+14. Reproducibility Considerations
+Containerization improves reproducibility by standardizing:
+	•	Python version.
+	•	Python dependencies.
+	•	Application source.
+	•	Dataset availability.
+	•	Test environment.
+However, Docker does not automatically guarantee perfect reproducibility.
+Potential concerns include:
+Base image changes
+A floating Docker base-image tag can change over time.
+The implementation should select an appropriate Python image and document the choice.
+For stronger reproducibility, the project may use a specific Python version rather than an unspecified latest tag.
+Dependency versions
+If requirements.txt leaves all package versions unconstrained, future installations could receive different dependency versions.
+The final implementation should make a deliberate decision about dependency pinning appropriate to the assignment.
+For a small college project, pinning the direct dependencies to known working versions can improve reproducibility without adding complexity.
+Dataset version
+The repository contains a specific copy of the 2019 CSV.
+The Docker image should build from that repository copy rather than downloading the dataset from Kaggle during the build.
+This prevents the Docker build from depending on external network access or a changing remote dataset.
+External network dependency
+The Dockerfile should not download the dataset from the internet.
+The required dataset is already part of the repository.
+This means that, after dependencies are available during the build, the application itself does not need web access to obtain its data.
+Host environment
+The Docker workflow should not depend on the host's Python installation.
+The container supplies its own Python environment and dependencies.
+
+15. Testing Strategy
+Automated tests will use pytest.
+The analysis tests should primarily use the small fixture dataset rather than the full Airbnb dataset.
+This makes tests:
+	•	Fast.
+	•	Deterministic.
+	•	Easy to understand.
+	•	Independent of the exact contents of the large Airbnb dataset.
+15.1 Data-loader tests
+Tests should cover:
+	•	Successful loading of a valid CSV.
+	•	Missing file behavior.
+	•	Missing required columns.
+	•	Basic cleaning behavior.
+	•	Non-numeric price values.
+	•	Zero prices.
+	•	Negative prices.
+The price tests should verify that non-numeric and less-than-or-equal-to-zero prices are excluded from price-based analysis.
+15.2 Analysis tests
+Tests should verify:
+	•	Overall listing counts.
+	•	Mean price.
+	•	Median price.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Mean availability.
+	•	Median availability.
+	•	Zero-availability count.
+	•	Zero-availability percentage.
+Expected values should be calculated from the small fixture so that the tests have known outcomes.
+15.3 Extreme-price test
+The test fixture should include at least one unusually large but valid positive price.
+The test should verify that this observation is not removed automatically.
+The test should also demonstrate that the mean and median can differ when an extreme valid price is present.
+This verifies the project's explicit decision to retain valid extreme prices.
+15.4 Availability tests
+The availability tests should explicitly verify:
+	•	Average availability.
+	•	Median availability.
+	•	Number of zero-availability listings.
+	•	Percentage of zero-availability listings.
+The fixture should contain at least one zero-availability listing.
+15.5 Edge cases
+Tests should consider:
+	•	Empty DataFrame.
+	•	All prices invalid.
+	•	All availability values missing.
+	•	No zero-availability listings.
+	•	All valid availability values equal to zero.
+	•	Missing required columns.
+	•	Invalid numeric values.
+	•	Invalid CLI choices.
+15.6 Containerized tests
+The project's tests should be executable inside the Docker image.
+The intended command is:
+docker run --rm nyc-airbnb-analyzer pytest
+This provides an additional reproducibility check because the tests run against the same containerized Python environment used by the application.
+
+16. Potential Risks and Design Concerns
+16.1 Scope creep
+The project should remain a small command-line data-analysis application.
+The following should not be added:
+	•	Machine learning.
+	•	Predictive modeling.
+	•	Web interfaces.
+	•	Databases.
+	•	Web scraping.
+	•	Visualization frameworks.
+	•	APIs.
+	•	Authentication.
+	•	Docker Compose.
+	•	Complex command-line frameworks.
+These features are outside the project's stated goal and would add unnecessary complexity.
+16.2 AI-generated errors
+AI recommendations and generated code should be treated as suggestions rather than automatically correct solutions.
+Important decisions should be independently checked against:
+	•	The actual dataset.
+	•	Python behavior.
+	•	pandas behavior.
+	•	Automated test results.
+	•	Docker build/run behavior.
+	•	Manual execution.
+16.3 Dataset-dependent tests
+Automated tests should use a small deterministic fixture whenever possible.
+The full dataset should primarily be used for application and container smoke testing.
+16.4 Price interpretation
+Airbnb prices may contain extreme valid observations.
+The application will retain these observations rather than automatically removing them.
+Reporting both mean and median provides two different summaries and allows the effect of extreme values to be considered.
+The application should not claim that either statistic completely represents a "typical" listing.
+16.5 Data-cleaning assumptions
+Cleaning rules should be explicit and documented.
+The project intentionally excludes:
+	•	Non-numeric prices.
+	•	Prices less than or equal to zero.
+Valid positive extreme prices remain in the analysis.
+16.6 Container size
+The full CSV dataset is intentionally included in the image for reproducibility.
+This makes the image larger than an image containing only application code, but the tradeoff is acceptable because the dataset is a required project artifact and there are no external data services.
+The project should not introduce complicated optimization techniques solely to minimize image size.
+16.7 Docker availability
+A user running the containerized workflow must have Docker installed.
+The README should clearly identify Docker as a prerequisite for the containerized workflow while still documenting the normal local Python workflow if desired.
+
+17. CLI Manual Smoke Test
+After implementation, the following workflow should be performed manually using the included AB_NYC_2019.csv dataset.
+Step 1 — Environment setup
+Create the documented Python environment and install the dependencies listed in requirements.txt.
+Step 2 — Launch
+Start the application using the documented local command.
+Verify that the application displays:
+NYC Airbnb Price & Availability Analyzer
+and the analysis menu.
+Step 3 — Overall summary
+Select option 1.
+Verify that the application displays:
+	•	Listing count.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Step 4 — Neighbourhood price analysis
+Select option 2.
+Verify that neighbourhood groups and their price statistics are displayed.
+Verify that both mean and median price are shown.
+Step 5 — Room-type analysis
+Select option 3.
+Verify that room types and their listing/price statistics are displayed.
+Step 6 — Availability analysis
+Select option 4.
+Verify that all four required measures are displayed:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability.
+Step 7 — Invalid input
+Enter an invalid menu choice such as 99.
+Verify that the application displays a useful error message and does not crash.
+Step 8 — Exit
+Select option 5.
+Verify that the application terminates normally.
+
+18. Containerization Smoke Test
+After the local application has been verified, perform the container-specific smoke test.
+Step 1
+Build the Docker image:
+docker build -t nyc-airbnb-analyzer .
+Step 2
+Run the container:
+docker run --rm -it nyc-airbnb-analyzer
+Step 3
+Confirm that the CLI menu appears.
+Step 4
+Run the overall summary analysis.
+Step 5
+Confirm that the application successfully reads the CSV included in the image and displays meaningful results.
+Step 6
+Run the automated tests inside the image:
+docker run --rm nyc-airbnb-analyzer pytest
+Step 7
+Confirm that the test suite executes in the container.
+The README should include these commands and document the actual outcome after the implementation has been independently verified.
+
+19. Final Verification
+Before the repository is considered complete, verify the following.
+Code
+	•	Application launches successfully. 
+	•	Dataset loads successfully. 
+	•	Required columns are validated. 
+	•	Cleaning behavior matches the documented decisions. 
+	•	Non-numeric prices are excluded from price calculations. 
+	•	Prices less than or equal to zero are excluded from price calculations. 
+	•	Valid extreme prices remain included. 
+	•	Mean and median price are both calculated. 
+	•	All four availability measures are calculated. 
+	•	CLI choices work. 
+	•	Invalid CLI input is handled. 
+	•	No unnecessary dependencies were introduced. 
+Tests
+	•	Automated tests run successfully locally. 
+	•	Automated tests run successfully inside Docker. 
+	•	Normal cases are covered. 
+	•	Price-cleaning rules are tested. 
+	•	Valid extreme prices are tested. 
+	•	Availability count and percentage are tested. 
+	•	Important edge cases are covered. 
+	•	Tests use deterministic fixture data where appropriate. 
+Docker
+	•	Dockerfile is present. 
+	•	.dockerignore is present. 
+	•	Docker image builds successfully. 
+	•	Docker container launches the CLI. 
+	•	The container can perform a meaningful analysis. 
+	•	The container can run the automated tests. 
+	•	The dataset is available inside the container. 
+	•	Normal container execution does not require a host volume. 
+	•	Docker Compose is not included because it is unnecessary for the single-service architecture. 
+Dataset
+	•	data/AB_NYC_2019.csv is present. 
+	•	The source dataset has not been unintentionally modified. 
+	•	The application uses the included dataset. 
+	•	The Docker image contains the required dataset. 
+Documentation
+	•	README contains project overview. 
+	•	README identifies the dataset and source. 
+	•	README contains local installation instructions. 
+	•	README contains local usage instructions. 
+	•	README contains Docker prerequisites. 
+	•	README contains Docker build instructions. 
+	•	README contains containerized CLI instructions. 
+	•	README contains containerized test instructions. 
+	•	README documents the CLI smoke test. 
+	•	README documents the containerization smoke test. 
+	•	README documents the AI-assisted workflow. 
+	•	README identifies an accepted AI recommendation. 
+	•	README identifies a changed or rejected AI recommendation. 
+	•	README explains independent verification. 
+	•	docs/plan.md is present. 
+Repository quality
+	•	.gitignore is present. 
+	•	.dockerignore is present. 
+	•	Virtual environments are not committed. 
+	•	Python cache files are not committed. 
+	•	Temporary/generated files are not committed. 
+	•	File and function names are clear. 
+	•	The project can be understood and reproduced by another developer. 
+	•	Only necessary dependencies are present. 
+	•	Docker Compose has not been added unnecessarily. 
+
+20. Development Sequence
+The Builder should implement the project in the following order.
+Phase 1 — Repository Foundation
+	1	Create the proposed directory structure.
+	2	Create requirements.txt with the minimal dependencies.
+	3	Create the basic Python package structure.
+	4	Confirm the dataset is located at data/AB_NYC_2019.csv.
+	5	Create .gitignore.
+Phase 2 — Data Loading
+	6	Implement CSV loading.
+	7	Validate required columns.
+	8	Implement documented data-cleaning behavior.
+	9	Implement the explicit price rule:
+	◦	Exclude non-numeric prices.
+	◦	Exclude prices less than or equal to zero.
+	◦	Retain valid positive extreme prices.
+	10	Add data-loader tests.
+Phase 3 — Analysis
+	11	Implement the overall summary.
+	12	Implement price-by-neighbourhood-group analysis.
+	13	Implement room-type analysis.
+	14	Implement availability analysis.
+	15	Ensure availability analysis returns all four required measures.
+	16	Add automated tests for each analysis.
+	17	Add edge-case tests.
+Phase 4 — CLI
+	18	Implement the simple menu.
+	19	Connect menu options to analysis functions.
+	20	Implement invalid-input handling.
+	21	Implement normal program exit.
+	22	Keep CLI logic separate from analysis logic.
+Phase 5 — Local Automated Verification
+	23	Run the complete pytest test suite.
+	24	Review failures and correct implementation issues.
+	25	Run the complete test suite again after corrections.
+Phase 6 — Docker
+	26	Create the Dockerfile.
+	27	Configure the working directory.
+	28	Install dependencies in the image.
+	29	Copy the application source, tests, and dataset into the image.
+	30	Configure the Python path.
+	31	Configure the default CLI command.
+	32	Create .dockerignore.
+	33	Build the Docker image.
+	34	Run the CLI inside the container.
+	35	Run pytest inside the container.
+Phase 7 — Container Verification
+	36	Perform the containerization smoke test.
+	37	Verify that the CLI reads the dataset from inside the image.
+	38	Verify that a meaningful analysis runs successfully.
+	39	Verify that automated tests run successfully inside the container.
+	40	Verify that normal execution does not require a host volume.
+	41	Document the actual results of the container smoke test.
+Phase 8 — Documentation
+	42	Complete the README.
+	43	Document the dataset and project decisions.
+	44	Document local installation and usage.
+	45	Document Docker prerequisites.
+	46	Document Docker build and run commands.
+	47	Document containerized testing.
+	48	Document the manual CLI smoke test.
+	49	Document the containerization smoke test.
+	50	Document the actual AI-assisted development workflow.
+	51	Identify an AI recommendation that was accepted.
+	52	Identify an AI recommendation that was changed or rejected.
+	53	Document independent verification.
+Phase 9 — Final Repository Review
+	54	Review docs/plan.md against the completed implementation.
+	55	Confirm the implementation matches the documented architecture.
+	56	Confirm only necessary dependencies are present.
+	57	Confirm Docker Compose was not introduced unnecessarily.
+	58	Confirm no temporary or generated files are committed.
+	59	Confirm all automated tests pass locally.
+	60	Confirm all automated tests pass inside Docker.
+	61	Confirm the local smoke test has been completed.
+	62	Confirm the containerization smoke test has been completed.
+	63	Review the repository as a final reproducibility check.
+
+21. Final Architectural Decision
+The project will use a deliberately simple architecture:
+                    ┌─────────────────────┐
+                    │ AB_NYC_2019.csv     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Data Loader/Cleaner │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Analysis Functions  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ CLI                 │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                         Terminal Output
+Docker provides a reproducible environment around the application:
+Docker Image
+├── Python
+├── pandas
+├── pytest
+├── application source
+├── tests
+└── AB_NYC_2019.csv
+The three main application responsibilities remain separate:
+	•	Data loader: obtains and prepares the data.
+	•	Analysis module: performs calculations and returns results.
+	•	CLI: handles user interaction and displays results.
+Docker adds a reproducible execution environment without changing that application architecture.
+The project will use a single Dockerfile rather than Docker Compose because there is only one application and no collection of cooperating services.
+The dataset will be copied into the Docker image so the standard containerized workflow is self-contained and does not require a host volume.
+The container's default command will launch the CLI, while pytest can be invoked by overriding the container command.
+The project will use only the dependencies necessary for its stated purpose: pandas and pytest.
+No web interface, database, machine learning, visualization framework, API, Docker Compose configuration, or other unnecessary functionality will be added.
+This gives Repository B a clear containerization story for the 10-point reproducibility category without turning Docker itself into unnecessary project complexity. The key evidence will be the combination of successful image build → meaningful CLI execution using the bundled CSV → successful pytest execution inside the same image, all documented in the README.
+[STUDENT]
+
+Before we move to the Builder, I want to do one final critical review of the plan rather than just accepting it as written.
+Please review the current plan and identify 3–5 areas where:
+	1	an implementation mistake is likely,
+	2	one of my architectural decisions could be unnecessarily complicated, or
+	3	an assumption should be independently verified before implementation.
+For each issue, explain the tradeoff and recommend what you think we should do. Please specifically review:
+	•	the Docker base image and dependency-version strategy,
+	•	copying the dataset into the Docker image versus using a volume,
+	•	Python package/import paths locally versus inside Docker,
+	•	behavior for empty or completely invalid data,
+	•	the testing and verification strategy,
+	•	whether anything in the current plan is unnecessary for this project's scope.
+Do not simply rewrite the plan. I want to understand the reasoning behind the recommendations so I can decide which ones to accept, change, or reject.
+Also identify any factual assumptions in the plan that the Builder should verify against the actual dataset or implementation rather than treating as guaranteed.
+After your review, I will make the final architectural decisions and then hand the plan to the Builder.
+
+[AGENT]
+
+I would make a few adjustments before handing this to the Builder. The current architecture is sound, but there are five places where implementation details could cause avoidable problems.
+1. Docker base image + dependency versions
+Potential issue
+The plan currently says to use a "suitable lightweight Python base image" and suggests that dependency pinning may be used.
+That's a little too vague for a reproducibility requirement.
+There are actually two separate reproducibility questions:
+	•	Which Python version is being used?
+	•	Which pandas/pytest versions are being used?
+If the Builder uses something like python:latest, the same Dockerfile can produce different environments in the future.
+Likewise, if requirements.txt just says:
+pandas
+pytest
+a future build could install newer versions than the ones originally tested.
+Tradeoff
+Loose versions
+Pros:
+	•	Very simple.
+	•	Automatically receives newer compatible releases.
+Cons:
+	•	Less reproducible.
+	•	A future pandas release could theoretically change behavior.
+Pinned versions
+Pros:
+	•	Much more reproducible.
+	•	The same requirements can recreate approximately the same environment.
+	•	Stronger evidence for the containerization rubric.
+Cons:
+	•	Slightly more maintenance.
+	•	Versions eventually become old.
+Recommendation
+I recommend pinning the Python version and the direct dependency versions actually used by the project.
+For example, the final implementation could deliberately choose a specific supported Python 3.x version and specific pandas/pytest versions.
+I would not add a complicated dependency-locking system. requirements.txt is sufficient for this assignment.
+Also, the Builder should verify that the selected pandas version works with the selected Python version rather than choosing versions arbitrarily.
+Decision I recommend: Keep requirements.txt, but make the versions explicit.
+
+2. Copying the dataset into the image vs. mounting it
+Potential issue
+The current plan copies the ~49,000-row CSV into the Docker image.
+That's perfectly reasonable, but it creates a subtle tradeoff.
+If the dataset changes, you have to rebuild the image.
+A volume would instead allow:
+host dataset → container
+without rebuilding.
+Tradeoff
+Copy dataset into image
+Pros:
+	•	Self-contained image.
+	•	Excellent reproducibility.
+	•	docker run works without extra arguments.
+	•	The exact dataset is associated with the image.
+	•	Excellent for the grading smoke test.
+Cons:
+	•	Image is larger.
+	•	Changing the dataset requires rebuilding.
+Mount dataset as a volume
+Pros:
+	•	Easy to replace/change datasets.
+	•	Keeps data outside the image.
+	•	Potentially smaller image.
+Cons:
+	•	The container isn't self-contained.
+	•	The smoke test requires a host path.
+	•	Reproducibility depends on whatever file happens to be mounted.
+	•	Makes the Docker instructions more complicated.
+Recommendation
+Keep the dataset copied into the image.
+For this project, the dataset is not an external production data source. It is an assignment artifact that is already committed to the repository.
+The important point is that the Builder should not download the dataset from Kaggle during docker build. The repository copy should be the source of truth.
+I would remove the optional volume discussion from the main README instructions. It isn't needed for the assignment and could distract from the reproducible workflow.
+Decision I recommend: Copy the dataset into the image; don't require or document volumes except perhaps as an optional development note.
+
+3. Python import paths are probably the biggest implementation-risk area
+Potential issue
+The plan has:
+src/
+└── nyc_airbnb/
+which is a good structure, but it creates a difference between:
+local Python execution
+and:
+Docker execution
+The Builder needs to make sure both environments can actually find:
+nyc_airbnb
+A common mistake is to make the Docker container work through PYTHONPATH, while the local command doesn't work, or vice versa.
+Another potential mistake is putting imports such as:
+from src.nyc_airbnb.analysis import ...
+
+in application code. That couples the code to the repository directory rather than treating nyc_airbnb as the package.
+Tradeoff
+The current src/ layout provides good separation, but it introduces a small amount of packaging complexity.
+A flatter structure such as:
+nyc_airbnb/
+    cli.py
+    analysis.py
+    data_loader.py
+would be easier for a beginner, but the src/ layout is more conventional and helps prevent accidental imports from the repository root.
+Recommendation
+Keep the src/nyc_airbnb layout.
+But make one architectural rule explicit:
+Application code should import the package as nyc_airbnb, not as src.nyc_airbnb.
+Then choose one simple mechanism for making /app/src importable both locally and inside Docker.
+I would prefer a straightforward documented approach rather than introducing packaging machinery just to solve this problem.
+The Builder should verify:
+local execution → imports work
+Docker execution → imports work
+pytest locally → imports work
+pytest in Docker → imports work
+before proceeding.
+Decision I recommend: Keep the src/ layout, but explicitly require consistent import behavior across all four execution contexts.
+
+4. Empty and completely invalid data needs a more explicit contract
+Potential issue
+The plan says the application should consider:
+	•	empty DataFrames,
+	•	all prices invalid,
+	•	all availability values missing,
+but it doesn't completely specify what the user should see.
+For example, suppose every price is invalid.
+Should the application display:
+Average price: NaN
+Median price: NaN
+or:
+No valid price data available.
+The second is much better for a CLI.
+Similarly, if there are zero valid availability records, calculating a zero-availability percentage would involve division by zero.
+Tradeoff
+Return NaN/empty statistical results
+Pros:
+	•	Very close to pandas behavior.
+	•	Less code.
+Cons:
+	•	Poor user experience.
+	•	Could produce confusing output.
+	•	Makes edge-case behavior ambiguous.
+Explicitly handle unusable analysis data
+Pros:
+	•	Clear CLI behavior.
+	•	Easier to test.
+	•	More robust.
+Cons:
+	•	Requires a few additional checks.
+Recommendation
+I recommend explicitly defining this behavior.
+For an analysis with no usable observations, the analysis layer should return a clearly identifiable empty/no-data result, and the CLI should display something like:
+No valid price data available for this analysis.
+rather than displaying misleading NaN values.
+For zero valid availability observations, the application should not attempt to calculate a percentage.
+This is a small amount of defensive programming that has a large benefit.
+Important distinction
+I would not over-engineer this into a general-purpose error framework.
+Just establish a few simple rules:
+	•	No valid price rows → report no price data.
+	•	No valid availability rows → report no availability data.
+	•	No valid availability denominator → don't calculate zero-availability percentage.
+	•	Empty grouping → report no data rather than crash.
+Decision I recommend: Add explicit empty-data behavior to the requirements and tests.
+
+5. Testing strategy is good, but don't test the same thing three times
+Potential issue
+The current plan has:
+	1	Unit tests.
+	2	Local manual smoke test.
+	3	Docker smoke test.
+	4	Tests inside Docker.
+That's appropriate for the rubric, but there's a risk of spending too much time testing trivial things repeatedly.
+For example, you don't need to manually verify every statistical value and write a separate Docker-specific test for every statistic.
+Recommended testing layers
+I would make the responsibilities very clear:
+Layer 1 — Unit tests
+Use the tiny fixture.
+Test:
+	•	cleaning,
+	•	calculations,
+	•	grouping,
+	•	edge cases.
+These establish that the analysis logic is correct.
+Layer 2 — Local CLI smoke test
+Use the actual 2019 dataset.
+Test:
+	•	application launches,
+	•	menu works,
+	•	analyses produce output,
+	•	invalid input works.
+This establishes that the pieces work together.
+Layer 3 — Docker smoke test
+Use the actual image.
+Test:
+docker build
+     ↓
+docker run
+     ↓
+CLI launches
+     ↓
+real CSV is accessible
+     ↓
+one meaningful analysis runs
+Layer 4 — Dockerized automated tests
+Run:
+docker run --rm nyc-airbnb-analyzer pytest
+This establishes that the test environment itself is reproducible.
+Recommendation
+Keep all four layers, because they map nicely to different verification goals.
+But don't duplicate detailed assertions across them.
+The tests should prove calculations.
+The manual test should prove usability/integration.
+The Docker test should prove reproducibility/container execution.
+That's a strong, defensible verification strategy for a college assignment.
+
+6. One thing I would remove: unnecessary optional Docker complexity
+There are a few things in the current plan that I think could be trimmed.
+Volume documentation
+As discussed above, I would remove it from the primary workflow.
+Complicated Docker optimization
+Don't introduce:
+	•	multi-stage builds,
+	•	Docker Compose,
+	•	Poetry,
+	•	pipenv,
+	•	virtual environments inside Docker,
+	•	separate test images,
+	•	separate production images,
+	•	custom entrypoint scripts,
+unless implementation reveals a genuine need.
+For this project, a single image is enough.
+Fancy CLI framework
+There's also no reason to add Click, Typer, argparse subcommands, or another CLI framework unless the assignment specifically requires one.
+A simple menu with Python's standard input handling is enough.
+Recommendation
+The architecture should explicitly say:
+Favor standard Python and pandas functionality over adding abstractions or frameworks.
+That reinforces the scope decision you already made.
+
+Factual assumptions the Builder should verify
+There are several statements in the plan that should be treated as assumptions to verify, not guaranteed facts.
+Dataset structure
+The Builder should verify that the actual CSV contains the expected 16 columns, particularly:
+neighbourhood_group
+room_type
+price
+availability_365
+The code should validate required columns rather than assuming they exist.
+Dataset size
+"Approximately 49,000 listings" is a description of the expected dataset, not something the application should hard-code.
+The Builder should verify the actual row count of the committed CSV.
+Missing values
+The plan discusses missing values generally.
+The Builder should inspect the actual CSV and determine which relevant fields actually contain missing values.
+Don't create cleaning logic based solely on assumptions about the dataset.
+Price values
+The Builder should independently inspect:
+	•	data type,
+	•	minimum price,
+	•	maximum price,
+	•	number of zero/negative values,
+	•	number of non-numeric values.
+The code should still implement the stated rule regardless of whether the current dataset happens to contain problematic values.
+Availability
+The Builder should verify that availability_365 contains the expected numeric range and determine whether there are missing or unusual values.
+The plan shouldn't assume that every value is automatically valid just because the column is named availability_365.
+Categorical values
+The Builder should inspect the actual values of:
+neighbourhood_group
+room_type
+but should not hard-code the analysis around today's observed categories.
+Docker behavior
+The Builder should verify:
+	•	selected Python image/version works,
+	•	selected pandas version supports that Python version,
+	•	selected pytest version supports that Python version,
+	•	imports work locally,
+	•	imports work inside Docker,
+	•	the CSV path works inside Docker,
+	•	the default Docker command actually launches the CLI.
+
+My recommended final decisions
+If I were making the architectural decisions before handing this to the Builder, I'd make these explicit:
+Area
+Recommendation
+Docker
+Keep
+Docker Compose
+Reject as unnecessary
+Dataset
+Copy into image
+Dataset volume
+Not part of normal workflow
+Python layout
+Keep src/nyc_airbnb
+Imports
+Use nyc_airbnb, not src.nyc_airbnb
+Python version
+Pin/select a specific version
+pandas/pytest
+Pin versions actually tested
+Empty data
+Explicit no-data behavior
+Extreme valid prices
+Keep them
+Invalid/non-positive prices
+Exclude from price calculations
+Unit tests
+Keep
+Local smoke test
+Keep
+Docker smoke test
+Keep
+Tests inside Docker
+Keep
+Docker Compose
+Do not add
+Multi-stage Docker
+Do not add
+Extra CLI framework
+Do not add
+Volume workflow
+Do not make it part of the assignment
+The biggest change I'd make
+I would add one explicit architectural requirement before Builder handoff:
+The project must define and test its behavior when an analysis has zero usable observations. The application should report a clear "no valid data" result rather than displaying misleading NaN values or failing due to an empty calculation.
+And I would make the Docker reproducibility requirement slightly stronger:
+The Python base version and direct dependency versions must be deliberately selected and documented so that the Docker image can be rebuilt consistently.
+Those two additions close the biggest gaps I see in the current plan without making the project substantially more complicated.
+
+[STUDENT]
+
+Thanks. I agree with most of these recommendations, but I want to make the final decisions explicitly before handing the project to the Builder.
+I accept the following recommendations:
+	•	Keep the src/nyc_airbnb structure and require application imports to use nyc_airbnb, not src.nyc_airbnb.
+	•	Copy the dataset into the Docker image rather than requiring a volume.
+	•	Keep Docker Compose, multi-stage builds, extra CLI frameworks, and other unnecessary infrastructure out of scope.
+	•	Keep the four verification layers: unit tests, local CLI smoke test, Docker smoke test, and tests inside Docker.
+	•	Add explicit behavior for empty or completely invalid analysis data so the application does not display misleading NaN results or fail on division by zero.
+	•	Require the Builder to verify the actual dataset structure and relevant values rather than relying on assumptions in the plan.
+	•	Keep valid positive extreme prices and exclude non-numeric, zero, and negative prices from price-based calculations.
+I also agree that Python and dependency versions should be deliberately selected for reproducibility. However, I do not want to choose versions arbitrarily before the Builder verifies compatibility. The Builder should select a specific compatible Python version and compatible pandas/pytest versions, document those choices, and verify that the resulting environment works.
+One point I want to preserve from the original plan is that the project should remain simple. I do not want reproducibility to lead to unnecessary packaging or dependency-management tools. requirements.txt and a straightforward Dockerfile are sufficient.
+Please now update the implementation plan to incorporate these final decisions, especially:
+	1	Explicit no-valid-data behavior.
+	2	Deliberately selected and documented Python/dependency versions.
+	3	Consistent src/nyc_airbnb imports locally and in Docker.
+	4	Verification of the actual dataset rather than relying on assumptions.
+	5	The four distinct testing/verification layers.
+	6	The decision that the dataset is copied into the image and a volume is not part of the required workflow.
+Do not add unnecessary complexity. After the plan is updated, I will review the final version and then move to the Builder.
+
+[AGENT]
+
+Absolutely. The final architecture should now treat those decisions as requirements, rather than recommendations. I would also keep the version-selection language deliberately flexible: the Builder must verify compatibility and record the chosen versions, but the Architect should not invent arbitrary versions in advance.
+Below is the consolidated final docs/plan.md.
+NYC Airbnb Price & Availability Analyzer — Implementation Plan
+1. Project Overview
+The NYC Airbnb Price & Availability Analyzer is a small Python command-line data-analysis application.
+The application will read the included New York City Airbnb Open Data CSV file and provide useful summary analysis of Airbnb listings, including price and availability information.
+The project is intentionally limited in scope. It will use:
+	•	Python
+	•	pandas for data processing
+	•	pytest for automated testing
+	•	Docker for containerization and reproducibility
+The project will not use:
+	•	Machine learning
+	•	Web scraping
+	•	A database
+	•	A web application
+	•	A visualization framework
+	•	An external API
+	•	Docker Compose
+	•	Multi-stage Docker builds
+	•	An additional CLI framework
+	•	Unnecessary dependency-management or packaging tools
+The application will maintain a clear separation between:
+	1	Data loading and cleaning.
+	2	Data analysis.
+	3	Command-line interaction.
+This separation allows the analysis functions to be independently tested.
+Docker will provide a reproducible environment containing the application, dependencies, tests, and dataset.
+
+2. Project Requirements
+The application must:
+	•	Read the included data/AB_NYC_2019.csv.
+	•	Verify that the actual dataset contains the columns required by the application.
+	•	Perform documented data cleaning.
+	•	Provide useful summary analysis through a command-line interface.
+	•	Handle invalid user input gracefully.
+	•	Handle empty or completely invalid analysis data without crashing or displaying misleading NaN results.
+	•	Include meaningful automated tests.
+	•	Include the dataset in the repository.
+	•	Include setup and usage documentation.
+	•	Include a Dockerfile.
+	•	Include a .dockerignore.
+	•	Provide a containerized way to run the CLI.
+	•	Provide a containerized way to run automated tests.
+	•	Include Docker build and run instructions.
+	•	Verify that the built image actually runs a meaningful part of the project.
+	•	Document the containerization smoke test.
+	•	Document AI-assisted development decisions.
+	•	Document independent verification.
+The application will provide four main analyses:
+	1	Overall summary.
+	2	Price statistics by neighbourhood group.
+	3	Price statistics by room type.
+	4	Availability summary.
+The availability summary must include:
+	•	Average availability.
+	•	Median availability.
+	•	Number of listings with zero availability.
+	•	Percentage of listings with zero availability.
+The project will not include machine learning, web scraping, databases, visualization frameworks, APIs, web interfaces, Docker Compose, or other unnecessary functionality.
+
+3. Repository Structure
+repository-b/
+│
+├── data/
+│   └── AB_NYC_2019.csv
+│
+├── src/
+│   └── nyc_airbnb/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── data_loader.py
+│       └── analysis.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_analysis.py
+│   └── fixtures/
+│       └── small_airbnb.csv
+│
+├── docs/
+│   └── plan.md
+│
+├── README.md
+├── requirements.txt
+├── Dockerfile
+├── .dockerignore
+└── .gitignore
+There will be no pyproject.toml.
+requirements.txt will be the project's dependency specification.
+There will be no Docker Compose configuration.
+
+4. File Responsibilities
+data/AB_NYC_2019.csv
+Contains the project's supplied copy of the New York City Airbnb Open Data dataset.
+The application will read this file but will not modify the source CSV.
+The dataset will be copied into the Docker image so the standard containerized application is self-contained.
+The Builder must inspect the actual file and verify its structure rather than treating the expected schema as guaranteed.
+src/nyc_airbnb/data_loader.py
+Responsible for:
+	•	Loading the CSV with pandas.
+	•	Checking that required columns exist.
+	•	Performing the documented data-cleaning operations.
+	•	Returning data suitable for analysis.
+The data loader should not contain the application's summary-analysis calculations.
+src/nyc_airbnb/analysis.py
+Contains independently testable analysis functions.
+Expected functionality includes:
+	•	Overall summary.
+	•	Price by neighbourhood group.
+	•	Price by room type.
+	•	Availability summary.
+Analysis functions should accept DataFrames or cleaned data and return analysis results.
+They should not depend on command-line input.
+The analysis layer should explicitly handle situations in which there are no valid observations for a particular calculation.
+src/nyc_airbnb/cli.py
+Responsible for:
+	•	Starting the application.
+	•	Displaying the menu.
+	•	Reading user choices.
+	•	Calling analysis functions.
+	•	Formatting and displaying results.
+	•	Handling invalid menu choices.
+	•	Returning to the menu.
+	•	Exiting normally.
+The CLI should not contain the core statistical calculations.
+tests/test_data_loader.py
+Tests:
+	•	Successful loading.
+	•	Missing-file behavior.
+	•	Required-column validation.
+	•	Price cleaning.
+	•	Other important data-cleaning behavior.
+	•	Empty/invalid data handling where applicable.
+tests/test_analysis.py
+Tests:
+	•	Overall statistics.
+	•	Price calculations.
+	•	Neighbourhood-group grouping.
+	•	Room-type grouping.
+	•	Availability calculations.
+	•	Zero-availability counts.
+	•	Zero-availability percentages.
+	•	Extreme valid prices.
+	•	No-valid-data behavior.
+	•	Important edge cases.
+tests/fixtures/small_airbnb.csv
+A small deterministic CSV used for automated tests.
+It should contain enough controlled examples to test:
+	•	Valid prices.
+	•	Non-numeric prices.
+	•	Zero prices.
+	•	Negative prices.
+	•	An unusually large valid positive price.
+	•	Multiple neighbourhood groups.
+	•	Multiple room types.
+	•	Multiple availability values.
+	•	At least one zero-availability listing.
+	•	Missing values where relevant.
+The fixture should be small enough that expected results can be calculated manually.
+README.md
+Documents:
+	•	Project purpose.
+	•	Dataset.
+	•	Features.
+	•	Data-cleaning decisions.
+	•	Installation.
+	•	Local usage.
+	•	Testing.
+	•	Docker prerequisites.
+	•	Docker build instructions.
+	•	Containerized CLI usage.
+	•	Containerized test usage.
+	•	Manual CLI smoke test.
+	•	Docker smoke test.
+	•	AI-assisted workflow.
+	•	Accepted AI recommendation.
+	•	Changed/rejected AI recommendation.
+	•	Independent verification.
+requirements.txt
+Contains the project's direct Python dependencies.
+The required dependencies are:
+	•	pandas
+	•	pytest
+The Builder must deliberately select compatible versions after verifying the chosen Python version and dependency compatibility.
+The project should not introduce additional dependency-management tools.
+Dockerfile
+Defines the reproducible runtime environment.
+It should:
+	•	Use a deliberately selected Python version.
+	•	Install the deliberately selected compatible pandas and pytest versions.
+	•	Set a predictable working directory.
+	•	Copy the application source.
+	•	Copy the tests.
+	•	Copy the dataset.
+	•	Configure the Python import path.
+	•	Launch the CLI by default.
+The Dockerfile should remain straightforward and should not use unnecessary infrastructure.
+.dockerignore
+Excludes unnecessary local files from the Docker build context.
+It should exclude items such as:
+.git/
+.gitignore
+.dockerignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+.DS_Store
+It must not exclude:
+data/AB_NYC_2019.csv
+src/
+tests/
+requirements.txt
+Dockerfile
+.gitignore
+Excludes local development artifacts such as:
+	•	Virtual environments.
+	•	Python cache directories.
+	•	pytest cache.
+	•	IDE-specific files.
+	•	Other generated development files.
+
+5. Python Package and Import Architecture
+The project will use the src layout:
+src/
+└── nyc_airbnb/
+Application modules must import the package as:
+nyc_airbnb
+and not as:
+src.nyc_airbnb
+This keeps the application's imports independent of the repository directory name.
+The project must make the package importable consistently in:
+	1	Local application execution.
+	2	Local pytest execution.
+	3	Docker CLI execution.
+	4	Docker pytest execution.
+The implementation should use a simple mechanism for exposing src/ to Python.
+The project should not introduce a packaging framework solely to solve this problem.
+The Builder must verify all four execution contexts before considering the import architecture complete.
+
+6. Data Format and Dataset Verification
+The project uses the New York City Airbnb Open Data dataset from 2019.
+The expected repository file is:
+data/AB_NYC_2019.csv
+The plan expects approximately 49,000 listings and 16 columns, but these values are assumptions that must be independently verified against the actual repository file.
+The Builder must inspect the actual dataset before implementation is considered complete.
+At minimum, the Builder should verify:
+	•	Actual row count.
+	•	Actual column names.
+	•	Data types of relevant columns.
+	•	Presence of price.
+	•	Presence of availability_365.
+	•	Presence of neighbourhood_group.
+	•	Presence of room_type.
+	•	Missing values in relevant fields.
+	•	Minimum and maximum relevant numeric values.
+	•	Whether non-numeric price values actually occur.
+	•	Whether zero or negative prices occur.
+	•	Whether zero availability values occur.
+	•	Actual categorical values in the grouping columns.
+The application should validate required columns at runtime rather than assuming that the expected schema is guaranteed.
+The Builder should not add cleaning rules merely because an assumed problem was mentioned in the plan. Cleaning decisions should be based on the documented project requirements and verified dataset behavior.
+
+7. Data-Cleaning Decisions
+Cleaning will be limited to decisions necessary for reliable analysis.
+7.1 Price cleaning rule
+The project explicitly defines:
+Prices that are non-numeric or less than or equal to zero are excluded from price-based calculations.
+This is an intentional project decision.
+A non-numeric price cannot be used in numeric price calculations.
+A price of zero or below is excluded because the analysis is intended to describe positive Airbnb listing prices.
+The application must therefore use only valid positive numeric prices for price-based calculations.
+This rule must be documented and tested.
+7.2 Valid extreme prices
+Valid positive extreme prices will not automatically be removed.
+There will be no arbitrary maximum-price cutoff.
+There will be no automatic statistical outlier-removal procedure.
+If a price is numeric and greater than zero, it remains eligible for price-based calculations regardless of how large it is.
+The application will report both:
+	•	Mean price.
+	•	Median price.
+This allows the effect of unusually large valid prices to be considered.
+This is an explicit project decision rather than an accidental consequence of implementation.
+7.3 Missing values
+Missing values will be handled according to the specific analysis.
+The project will not delete every row containing any missing value.
+For example:
+	•	Price analysis requires a valid positive numeric price.
+	•	Availability analysis requires usable availability.
+	•	Neighbourhood analysis requires a usable neighbourhood group.
+	•	Room-type analysis requires a usable room type.
+Missing values unrelated to the current calculation should not unnecessarily remove otherwise usable observations.
+7.4 Availability
+availability_365 will be treated as a numeric analysis variable.
+The Builder must verify its actual data type and values.
+Rows without usable availability values will not be included in availability calculations.
+
+8. Explicit No-Valid-Data Behavior
+The application must explicitly handle cases where an analysis has no usable observations.
+It must not:
+	•	Crash because a calculation receives an empty dataset.
+	•	Display misleading NaN results to the CLI user.
+	•	Divide by zero when calculating a percentage.
+Examples include:
+	•	Every price is invalid.
+	•	Every availability value is missing/invalid.
+	•	A filtered group has no valid price observations.
+	•	An analysis receives an empty DataFrame.
+For these situations, the analysis layer should return an identifiable no-data result.
+The CLI should convert that result into a clear message, such as:
+No valid price data available for this analysis.
+or:
+No valid availability data available for this analysis.
+The exact wording can be selected during implementation.
+For the zero-availability percentage:
+zero-availability percentage =
+    (number of valid listings with availability == 0 /
+     number of listings with valid availability) × 100
+If there are no valid availability observations, the percentage must not be calculated.
+The tests must explicitly verify this behavior.
+This requirement should remain simple; the project does not need a general-purpose error-handling framework.
+
+9. Core Functionality
+9.1 Overall Summary
+Display:
+	•	Number of listings represented by the analysis.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Price statistics use only valid positive numeric prices.
+Availability statistics use valid availability observations.
+If no valid data exists for a statistic, display the project's no-data message instead of NaN.
+9.2 Price by Neighbourhood Group
+Group listings by neighbourhood_group.
+Display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The application should use the actual categorical values present in the dataset rather than hard-coding a fixed list of neighbourhood groups.
+9.3 Price by Room Type
+Group listings by room_type.
+Display:
+	•	Number of listings with valid prices.
+	•	Average price.
+	•	Median price.
+The implementation should use actual values found in the dataset.
+9.4 Availability Summary
+Display all four required measures:
+	1	Average availability.
+	2	Median availability.
+	3	Number of listings with zero availability.
+	4	Percentage of listings with zero availability.
+The percentage denominator must be the number of valid availability observations.
+
+10. CLI Design
+The CLI will use a simple menu.
+Expected structure:
+NYC Airbnb Price & Availability Analyzer
+
+1. Overall summary
+2. Price by neighbourhood group
+3. Summary by room type
+4. Availability summary
+5. Exit
+
+Select an option:
+The user should be able to:
+	1	Select an analysis.
+	2	View results.
+	3	Return to the menu.
+	4	Exit.
+Invalid menu choices should produce a readable error message rather than crash the program.
+The CLI should use standard Python functionality.
+No external CLI framework is required.
+
+11. Docker Architecture
+11.1 Purpose
+Docker will provide a reproducible environment containing:
+	•	A deliberately selected Python version.
+	•	pandas.
+	•	pytest.
+	•	Application source.
+	•	Tests.
+	•	The repository's dataset.
+The goal is to allow another developer to build the application from the repository and run it without depending on their host Python environment.
+11.2 Docker Compose decision
+Docker Compose is explicitly out of scope.
+The application has:
+	•	One Python CLI.
+	•	No database.
+	•	No web server.
+	•	No worker.
+	•	No message queue.
+	•	No second service.
+Therefore, Compose would add configuration without providing an architectural benefit.
+The project will use one Dockerfile and one application image.
+11.3 Dataset strategy
+The dataset will be copied into the Docker image.
+The standard containerized application will therefore contain the project's exact repository copy of:
+data/AB_NYC_2019.csv
+The Docker build must not download the dataset from Kaggle.
+This provides:
+	•	A self-contained image.
+	•	A reproducible input dataset.
+	•	Simpler Docker commands.
+	•	A simpler grading smoke test.
+	•	No runtime dependency on an external dataset source.
+A host volume is not part of the required workflow.
+An optional development volume could technically be used, but it should not be necessary for building, running, or testing the assignment.
+The README's primary Docker instructions should therefore use the self-contained image.
+11.4 Working directory
+The container should use a predictable working directory such as:
+/app
+The expected structure will resemble:
+/app/
+├── data/
+├── src/
+└── tests/
+11.5 Python path
+The container must make:
+/app/src
+available to Python so that:
+nyc_airbnb
+can be imported.
+The same package import convention must work locally.
+The project should not use src.nyc_airbnb imports.
+11.6 Default container command
+The image should launch the CLI by default.
+Conceptually:
+docker build -t nyc-airbnb-analyzer .
+docker run --rm -it nyc-airbnb-analyzer
+The exact Python invocation will be selected during implementation.
+The important requirement is that a normal container run launches the analyzer rather than opening a shell.
+11.7 Running tests inside Docker
+The image should contain pytest and the test suite.
+The test suite should be runnable by overriding the default command:
+docker run --rm nyc-airbnb-analyzer pytest
+This should use the same Python environment and dependencies contained in the application image.
+
+12. Docker Version and Dependency Strategy
+The Builder must deliberately select compatible versions for:
+	•	Python.
+	•	pandas.
+	•	pytest.
+The Architect does not prescribe arbitrary versions in advance.
+Instead, the Builder must:
+	1	Select a specific supported Python version.
+	2	Select compatible pandas and pytest versions.
+	3	Record those versions in requirements.txt and the Dockerfile as appropriate.
+	4	Verify that the selected versions work together.
+	5	Run the automated tests using that environment.
+	6	Run the actual application inside the resulting Docker image.
+The project should not add:
+	•	Poetry.
+	•	Pipenv.
+	•	Conda.
+	•	A separate lockfile system.
+	•	A dependency manager beyond requirements.txt.
+The chosen versions should be documented in the README so another developer knows which environment was verified.
+The Builder should avoid using floating latest tags where doing so would weaken reproducibility.
+
+13. Dockerfile Requirements
+The Dockerfile should:
+	1	Use a deliberately selected Python base version.
+	2	Set the working directory.
+	3	Copy requirements.txt.
+	4	Install the selected compatible dependencies.
+	5	Copy src/.
+	6	Copy tests/.
+	7	Copy data/.
+	8	Configure the Python path so nyc_airbnb imports correctly.
+	9	Define the default CLI command.
+The Dockerfile should remain straightforward.
+It should not contain:
+	•	Multiple application services.
+	•	A database.
+	•	Docker Compose.
+	•	Multi-stage builds.
+	•	Application logic.
+	•	Dataset downloads from Kaggle.
+	•	Unnecessary operating-system packages.
+
+14. .dockerignore Requirements
+The .dockerignore file should prevent irrelevant files from entering the Docker build context.
+It should exclude:
+.git/
+.gitignore
+.dockerignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+.DS_Store
+The following must remain available to the Docker build:
+data/AB_NYC_2019.csv
+src/
+tests/
+requirements.txt
+Dockerfile
+
+15. Testing Strategy
+The project will use four distinct verification layers.
+These layers have different purposes and should not duplicate one another unnecessarily.
+Layer 1 — Automated Unit Tests
+Use pytest and the small fixture dataset.
+Test:
+	•	Data loading.
+	•	Required-column validation.
+	•	Price cleaning.
+	•	Mean price.
+	•	Median price.
+	•	Grouped price calculations.
+	•	Availability calculations.
+	•	Zero-availability count.
+	•	Zero-availability percentage.
+	•	Extreme valid prices.
+	•	No-valid-data behavior.
+	•	Important edge cases.
+The tests should verify calculations with known expected values.
+Layer 2 — Local CLI Smoke Test
+Use the actual AB_NYC_2019.csv.
+Verify:
+	•	Application launches.
+	•	Menu appears.
+	•	Each analysis can be selected.
+	•	Results are displayed.
+	•	Availability output includes all four required measures.
+	•	Invalid menu input does not crash the application.
+	•	Exit works normally.
+This verifies integration and user-facing behavior.
+Layer 3 — Docker Smoke Test
+Build the image and launch the container.
+Verify:
+	•	Image builds successfully.
+	•	CLI launches.
+	•	Dataset is available inside the image.
+	•	A meaningful analysis runs successfully.
+The Docker smoke test must demonstrate actual application functionality, not merely that the container starts.
+Layer 4 — Automated Tests Inside Docker
+Run:
+docker run --rm nyc-airbnb-analyzer pytest
+Verify that the full automated test suite executes successfully inside the container.
+This verifies that the reproducible environment can run both the application and its tests.
+
+16. Automated Test Cases
+The fixture should allow deterministic tests for the following.
+Normal price calculation
+Verify expected mean and median for known valid positive prices.
+Non-numeric price
+Verify that a non-numeric price does not enter price-based calculations.
+Zero price
+Verify that a price of 0 is excluded.
+Negative price
+Verify that a negative price is excluded.
+Extreme valid price
+Include an unusually large positive price.
+Verify that:
+	•	It remains included.
+	•	It affects the mean.
+	•	It remains represented in the median calculation according to normal statistical rules.
+This confirms that valid extreme values are not silently treated as invalid.
+Missing price
+Verify that a missing price does not cause the application to crash and is not used as a valid price observation.
+Availability
+Verify:
+	•	Mean availability.
+	•	Median availability.
+	•	Zero-availability count.
+	•	Zero-availability percentage.
+No valid price data
+Provide data in which every price is invalid.
+Verify that the analysis produces a no-data result rather than NaN output or an exception.
+No valid availability data
+Provide data with no usable availability observations.
+Verify that:
+	•	No availability statistic is misleadingly displayed.
+	•	No division-by-zero occurs.
+	•	The CLI can report that availability data is unavailable.
+Empty data
+Verify that an empty DataFrame does not cause an unexpected crash.
+Group with no valid price observations
+Verify that one group lacking usable prices is handled without crashing the entire analysis.
+CLI invalid input
+Verify that an invalid menu choice results in a readable error and allows the application to continue.
+
+17. Potential Risks and Design Concerns
+17.1 Import-path mistakes
+The src/ structure can cause local/Docker differences if the Python path is configured inconsistently.
+The Builder must verify:
+	•	Local CLI imports.
+	•	Local pytest imports.
+	•	Docker CLI imports.
+	•	Docker pytest imports.
+Application imports must use nyc_airbnb, not src.nyc_airbnb.
+17.2 Dependency compatibility
+The selected Python, pandas, and pytest versions must be tested together.
+Versions should not be selected arbitrarily.
+The Builder must document the verified combination.
+17.3 Dataset assumptions
+The expected dataset schema, row count, and value distributions are assumptions until verified.
+The Builder must inspect the actual repository CSV.
+17.4 Empty data
+Pandas operations on empty data can produce NaN, empty results, warnings, or division-by-zero behavior.
+The application must explicitly handle these situations.
+17.5 Extreme prices
+Valid extreme prices can substantially affect the mean.
+The project intentionally keeps them.
+Reporting both mean and median gives the user information with which to consider their effect.
+17.6 Scope creep
+The Builder should not add infrastructure or features simply because they are technically possible.
+Do not add:
+	•	Web UI.
+	•	Database.
+	•	Machine learning.
+	•	API.
+	•	Visualization framework.
+	•	Docker Compose.
+	•	Multi-stage Docker build.
+	•	External CLI framework.
+	•	Additional dependency manager.
+
+18. Manual CLI Smoke Test
+After implementation, perform the following test against the actual dataset.
+Step 1 — Launch
+Start the application using the documented local command.
+Verify that the menu appears.
+Step 2 — Overall summary
+Select the overall summary.
+Verify that it displays:
+	•	Listing count.
+	•	Average price.
+	•	Median price.
+	•	Average availability.
+	•	Median availability.
+Step 3 — Neighbourhood analysis
+Select price by neighbourhood group.
+Verify that groups are displayed with:
+	•	Valid listing count.
+	•	Average price.
+	•	Median price.
+Step 4 — Room-type analysis
+Select the room-type analysis.
+Verify that actual room types from the dataset are represented and that price statistics appear.
+Step 5 — Availability analysis
+Verify all four required measures:
+	•	Average availability.
+	•	Median availability.
+	•	Number of zero-availability listings.
+	•	Percentage of zero-availability listings.
+Step 6 — Invalid input
+Enter an invalid menu choice.
+Verify that the application does not crash.
+Step 7 — Exit
+Exit normally.
+The README should document the actual smoke-test outcome after implementation.
+
+19. Docker Smoke Test
+After the local application has been verified:
+Step 1 — Build
+Run:
+docker build -t nyc-airbnb-analyzer .
+Verify that the image builds successfully.
+Step 2 — Launch
+Run:
+docker run --rm -it nyc-airbnb-analyzer
+Verify that the CLI menu appears.
+Step 3 — Meaningful analysis
+Select the overall summary.
+Verify that the application successfully reads the dataset from inside the image and produces meaningful results.
+No host dataset volume should be required.
+Step 4 — Test inside container
+Run:
+docker run --rm nyc-airbnb-analyzer pytest
+Verify that the automated test suite executes successfully.
+Step 5 — Verify import consistency
+Confirm that the same nyc_airbnb package imports work inside Docker as they do locally.
+The README should document the actual results rather than claiming successful verification before it occurs.
+
+20. Reproducibility Requirements
+The project should be reproducible without introducing unnecessary tooling.
+Reproducibility will be supported by:
+	•	A specific Python version.
+	•	Explicitly selected compatible pandas and pytest versions.
+	•	requirements.txt.
+	•	A Dockerfile.
+	•	The repository-contained dataset.
+	•	No runtime dataset download.
+	•	A predictable Docker working directory.
+	•	A consistent nyc_airbnb import path.
+	•	Containerized automated tests.
+The exact Python and dependency versions must be selected and verified by the Builder.
+The dataset version is represented by the CSV committed to the repository.
+The Docker image must use that repository copy rather than downloading a potentially different dataset.
+
+21. Documentation Requirements
+The README must contain the following sections or equivalent information.
+Project overview
+Explain:
+	•	What the application does.
+	•	Why the project exists.
+	•	What data it uses.
+Dataset
+Identify:
+	•	New York City Airbnb Open Data.
+	•	The Kaggle source.
+	•	The repository location of the CSV.
+The README should clearly state that the application uses the dataset included in the repository.
+Data-cleaning decisions
+Document:
+	•	Non-numeric prices are excluded.
+	•	Zero and negative prices are excluded.
+	•	Valid positive extreme prices are retained.
+	•	Mean and median are both reported.
+	•	Missing values are handled according to the specific analysis.
+Installation
+Explain local Python setup using:
+requirements.txt
+No additional package-management system should be required.
+Usage
+Document the local CLI command.
+Testing
+Document the local pytest command.
+Docker
+Document:
+	•	Docker prerequisite.
+	•	Build command.
+	•	Containerized CLI command.
+	•	Containerized test command.
+	•	Dataset inclusion strategy.
+	•	The fact that a volume is not required.
+Manual smoke test
+Document the local smoke-test procedure and actual verification result.
+Containerization smoke test
+Document:
+	•	Docker build.
+	•	Container launch.
+	•	Meaningful analysis.
+	•	Tests inside Docker.
+	•	Verification that the dataset is available inside the image.
+AI-assisted workflow
+Document:
+	•	How AI was used during planning/development.
+	•	An AI recommendation that was accepted.
+	•	An AI recommendation that was changed or rejected.
+	•	Why the decision was made.
+	•	How the resulting implementation was independently verified.
+The documentation must describe actual development decisions rather than inventing a workflow that did not occur.
+
+22. Final Verification Checklist
+Dataset
+	•	Actual CSV structure inspected. 
+	•	Actual row count verified. 
+	•	Actual column names verified. 
+	•	Relevant data types inspected. 
+	•	Relevant missing values inspected. 
+	•	Price range inspected. 
+	•	Availability values inspected. 
+	•	Actual categorical values inspected. 
+	•	Required columns validated by application code. 
+Data cleaning
+	•	Non-numeric prices excluded. 
+	•	Zero prices excluded. 
+	•	Negative prices excluded. 
+	•	Valid positive extreme prices retained. 
+	•	Mean and median both reported. 
+	•	Missing values handled appropriately. 
+Empty-data behavior
+	•	Empty DataFrame handled. 
+	•	No-valid-price case handled. 
+	•	No-valid-availability case handled. 
+	•	No division by zero. 
+	•	CLI does not display misleading NaN for no-data cases. 
+Package/import architecture
+	•	src/nyc_airbnb structure used. 
+	•	Application imports use nyc_airbnb. 
+	•	No src.nyc_airbnb application imports. 
+	•	Local imports verified. 
+	•	Docker imports verified. 
+	•	Local pytest imports verified. 
+	•	Docker pytest imports verified. 
+Dependencies
+	•	Specific Python version selected. 
+	•	Compatible pandas version selected. 
+	•	Compatible pytest version selected. 
+	•	Compatibility verified. 
+	•	Versions documented. 
+	•	No unnecessary dependency-management tools added. 
+Tests
+	•	Unit tests pass locally. 
+	•	Price-cleaning rules tested. 
+	•	Extreme valid prices tested. 
+	•	Availability measures tested. 
+	•	No-data behavior tested. 
+	•	Important edge cases tested. 
+	•	CLI invalid input tested. 
+Docker
+	•	Dockerfile present. 
+	•	.dockerignore present. 
+	•	Image builds successfully. 
+	•	Dataset copied into image. 
+	•	No dataset volume required. 
+	•	CLI launches from container. 
+	•	Meaningful analysis runs from container. 
+	•	pytest runs inside container. 
+	•	Docker Compose not added. 
+	•	Multi-stage build not added. 
+	•	Unnecessary infrastructure not added. 
+Documentation
+	•	README explains project. 
+	•	README explains dataset. 
+	•	README explains cleaning decisions. 
+	•	README explains local installation. 
+	•	README explains local usage. 
+	•	README explains local testing. 
+	•	README explains Docker. 
+	•	README explains Docker smoke test. 
+	•	README explains AI-assisted workflow. 
+	•	README documents accepted AI recommendation. 
+	•	README documents changed/rejected AI recommendation. 
+	•	README documents independent verification. 
+	•	docs/plan.md matches final architecture. 
+
+23. Suggested Development Sequence
+Phase 1 — Inspect the actual repository and dataset
+	1	Confirm the repository structure.
+	2	Inspect AB_NYC_2019.csv.
+	3	Verify actual columns.
+	4	Verify actual row count.
+	5	Inspect relevant data types.
+	6	Inspect relevant missing values.
+	7	Inspect price values.
+	8	Inspect availability values.
+	9	Inspect neighbourhood-group and room-type values.
+The Builder must perform these checks before treating dataset assumptions as facts.
+Phase 2 — Establish the Python environment
+	10	Select a specific Python version.
+	11	Select compatible pandas and pytest versions.
+	12	Verify compatibility.
+	13	Record the selected versions in requirements.txt.
+	14	Document the selected environment.
+Phase 3 — Repository foundation
+	15	Create the src/nyc_airbnb package.
+	16	Create the tests directory.
+	17	Create the deterministic test fixture.
+	18	Create .gitignore.
+Phase 4 — Data loading
+	19	Implement CSV loading.
+	20	Validate required columns.
+	21	Implement the explicit price-cleaning rule.
+	22	Implement appropriate missing-value handling.
+	23	Add data-loader tests.
+Phase 5 — Analysis
+	24	Implement overall summary.
+	25	Implement neighbourhood-group price analysis.
+	26	Implement room-type price analysis.
+	27	Implement availability analysis.
+	28	Implement explicit no-valid-data behavior.
+	29	Add analysis tests.
+	30	Add edge-case tests.
+	31	Verify extreme valid prices remain included.
+Phase 6 — CLI
+	32	Implement the simple menu.
+	33	Connect menu options to analysis functions.
+	34	Handle invalid input.
+	35	Implement normal exit.
+	36	Verify CLI behavior locally.
+Phase 7 — Local verification
+	37	Run all pytest tests.
+	38	Fix implementation issues.
+	39	Re-run pytest.
+	40	Perform the complete local CLI smoke test.
+Phase 8 — Docker
+	41	Select and document the final Python base image/version.
+	42	Create the Dockerfile.
+	43	Configure /app as the working directory.
+	44	Make /app/src available to Python.
+	45	Copy source, tests, and dataset into the image.
+	46	Install the selected dependency versions.
+	47	Configure the CLI as the default command.
+	48	Create .dockerignore.
+Phase 9 — Docker verification
+	49	Build the image.
+	50	Launch the CLI inside the container.
+	51	Run a meaningful analysis using the bundled dataset.
+	52	Run pytest inside the container.
+	53	Verify imports work in Docker.
+	54	Record the actual results.
+Phase 10 — Documentation
+	55	Complete README installation instructions.
+	56	Complete local usage instructions.
+	57	Complete testing instructions.
+	58	Complete Docker instructions.
+	59	Document data-cleaning decisions.
+	60	Document the local smoke test.
+	61	Document the Docker smoke test.
+	62	Document the AI-assisted workflow.
+	63	Document accepted and changed/rejected AI recommendations.
+	64	Document independent verification.
+Phase 11 — Final review
+	65	Compare implementation against docs/plan.md.
+	66	Verify all tests pass locally.
+	67	Verify all tests pass in Docker.
+	68	Verify local smoke test.
+	69	Verify Docker smoke test.
+	70	Verify no unnecessary infrastructure was introduced.
+	71	Verify repository cleanliness.
+	72	Verify documentation accurately describes what was actually done.
+
+24. Final Architectural Decisions
+The final architecture is intentionally small:
+                 AB_NYC_2019.csv
+                        │
+                        ▼
+               ┌─────────────────┐
+               │ Data Loader     │
+               │ + Cleaning      │
+               └────────┬────────┘
+                        │
+                        ▼
+               ┌─────────────────┐
+               │ Analysis        │
+               │ Functions       │
+               └────────┬────────┘
+                        │
+                        ▼
+               ┌─────────────────┐
+               │ CLI             │
+               │ User Interface  │
+               └─────────────────┘
+The application is contained within:
+Docker Image
+├── Selected Python version
+├── Selected pandas version
+├── Selected pytest version
+├── src/nyc_airbnb/
+├── tests/
+└── data/AB_NYC_2019.csv
+The final decisions are:
+	1	Use src/nyc_airbnb as the Python package structure.
+	2	Application imports use nyc_airbnb, never src.nyc_airbnb.
+	3	Verify imports in local CLI, local pytest, Docker CLI, and Docker pytest environments.
+	4	Use only requirements.txt for dependency specification.
+	5	Select and verify compatible Python, pandas, and pytest versions rather than choosing arbitrary versions in advance.
+	6	Copy the repository's CSV into the Docker image.
+	7	Do not require a dataset volume.
+	8	Do not download the dataset during the Docker build.
+	9	Use one straightforward Dockerfile.
+	10	Do not use Docker Compose.
+	11	Do not use multi-stage builds.
+	12	Do not add an external CLI framework.
+	13	Exclude non-numeric, zero, and negative prices from price calculations.
+	14	Retain valid positive extreme prices.
+	15	Report both mean and median price.
+	16	Report all four required availability measures.
+	17	Explicitly handle empty and no-valid-data cases without misleading NaN output or division by zero.
+	18	Verify actual dataset characteristics before relying on dataset assumptions.
+	19	Use four distinct verification layers:
+	◦	Automated unit tests.
+	◦	Local CLI smoke test.
+	◦	Docker smoke test.
+	◦	Automated tests inside Docker.
+	20	Keep the implementation and infrastructure proportional to a small college command-line project.
+The Builder should treat this document as the architectural contract while still independently verifying factual assumptions about the actual dataset, Python environment, dependency compatibility, and resulting implementation.
+This version preserves the simplicity of the original design while making the areas we identified during the critical review explicit enough that the Builder has less room to make incompatible implementation choices.
+
+===== TRANSCRIPT END =====
+
