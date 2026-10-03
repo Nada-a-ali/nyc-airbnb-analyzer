@@ -97,20 +97,46 @@ The deterministic fixture covers:
 - missing required columns
 - missing dataset file
 
-## Manual CLI smoke test
+## Manual smoke test
 
-The CLI was run locally against the actual 48,895-row dataset with this sequence:
+The project was manually tested locally against the actual 48,895-row dataset on 2026-10-03.
+
+The documented local setup instructions were followed successfully:
+
+- python3.12 -m venv .venv
+- source .venv/bin/activate
+- pip install -r requirements.txt
+
+The automated test suite was then run using the documented command: 
+
+```bash
+PYTHONPATH=src pytest
+```
+
+Result:
+
+```text
+11 passed in 0.42s
+```
+
+The CLI was then run using the documented command: 
+
+```bash
+PYTHONPATH=src python -m nyc_airbnb.cli
+```
+
+The following workflow was tested: 
 
 ```text
 1 -> Overall summary
 2 -> Price by neighbourhood group
 3 -> Summary by room type
 4 -> Availability summary
-9 -> Invalid menu choice
+abc -> Invalid menu choice
 5 -> Exit
 ```
 
-The smoke test completed normally. The application produced all four required analyses, rejected the invalid choice without crashing, and exited normally.
+The project started successfully. All four required analyses produced results, the invalid input was rejected without crashing, and the application exited normally.
 
 Verified overall results from the supplied dataset:
 
@@ -149,19 +175,55 @@ docker run --rm nyc-airbnb-analyzer pytest
 
 The Dockerfile uses `python:3.12-slim`, installs pandas 2.2.3 and pytest 8.3.5, uses `/app` as the working directory, copies `src/`, `tests/`, and `data/`, sets `PYTHONPATH=/app/src`, and launches the CLI by default.
 
-### Docker verification status
+### Docker verification status 
 
-The Dockerfile and Docker commands were reviewed, but **Docker execution could not be performed in the Builder execution environment because the Docker executable is not installed there**. Therefore this project does not claim a successful Docker build, Docker CLI smoke test, or Docker pytest run.
+Docker was independently tested locally after the Builder phase.
 
-To complete the remaining verification locally, run:
+The image was successfully built with: 
 
 ```bash
 docker build -t nyc-airbnb-analyzer .
+```
+
+The build completed successfully and created the `nyc-airbnb-analyzer:latest` image.
+
+The containerized CLI was then started with: 
+
+```bash
 docker run --rm -it nyc-airbnb-analyzer
+```
+
+The application started successfully, loaded the bundled dataset, produced the overall summary, and exited normally.
+
+The Dockerized test suite was run with: 
+
+```bash
 docker run --rm nyc-airbnb-analyzer pytest
 ```
 
-The first command must build successfully, the second must launch the CLI and allow an analysis to run using the bundled dataset, and the third must pass the automated tests.
+Result:
+
+```text
+11 passed in 0.17s
+```
+
+Therefore, the manual smoke test independently verified:
+
+- Local installation and dependency setup
+- Local automated tests
+- Local CLI startup and required analyses
+- Invalid CLI input handling
+- Local clean exit
+- Docker image build
+- Docker CLI startup and analysis
+- Docker automated tests
+- Docker clean exit
+
+The Docker workflow was independently verified locally: the image built successfully, the containerized application started and produced analysis output, and the Dockerized test suite passed.
+
+### Smoke-test result
+
+The manual smoke test successfully verified the documented setup, project startup, required analyses and outputs, invalid-input handling, normal exit, Docker image build, Dockerized application startup, and Dockerized automated tests.
 
 ## Import architecture
 
@@ -177,7 +239,7 @@ An accepted architectural recommendation was to keep the `src/nyc_airbnb` packag
 
 The Architect's decision to avoid Docker Compose and other additional infrastructure was retained rather than expanded: this is a single CLI with no database, server, or second service.
 
-Independent verification included direct inspection of the exact supplied CSV before implementation, calculation of dataset characteristics from that file, deterministic unit tests with manually checkable fixture values, a local CLI smoke test using the real dataset, and review of the Docker configuration. Docker execution remains the only verification step blocked by the available Builder environment.
+Independent verification included direct inspection of the exact supplied CSV before implementation, calculation of dataset characteristics from that file, deterministic unit tests with manually checkable fixture values, a local CLI smoke test using the real dataset, and review of the Docker configuration. Docker execution was independently verified locally after the Builder phase, including the image build, containerized CLI, and Dockerized test suite.
 
 ## Scope
 
