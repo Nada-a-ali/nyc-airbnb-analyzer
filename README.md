@@ -1,6 +1,6 @@
 # NYC Airbnb Price & Availability Analyzer
 
-A small Python command-line application that analyzes the supplied New York City Airbnb Open Data dataset. It reports overall price and availability summaries, price statistics by neighbourhood group, price statistics by room type, and the required availability measures.
+A Python command-line application that analyzes the supplied New York City (NYC) Airbnb Open Data dataset. The purpose of this project is to report overall NYC Airbnb price and availability summaries, price statistics by neighbourhood group, price statistics by room type, and the required availability measures. 
 
 ## Project structure
 
@@ -219,7 +219,6 @@ Therefore, the manual smoke test independently verified:
 - Docker automated tests
 - Docker clean exit
 
-The Docker workflow was independently verified locally: the image built successfully, the containerized application started and produced analysis output, and the Dockerized test suite passed.
 
 ### Smoke-test result
 
@@ -233,13 +232,19 @@ Locally, `PYTHONPATH=src` exposes the package. In Docker, `PYTHONPATH=/app/src` 
 
 ## AI-assisted workflow and independent verification
 
-AI was used in the Architect/Builder workflow to structure the implementation and review edge cases.
+AI was used in the Architect/Builder/Tester workflow to structure and review the implementation.
 
 An accepted architectural recommendation was to keep the `src/nyc_airbnb` package and use `nyc_airbnb` as the import name rather than `src.nyc_airbnb`. This keeps application imports independent of the repository directory name.
 
-The Architect's decision to avoid Docker Compose and other additional infrastructure was retained rather than expanded: this is a single CLI with no database, server, or second service.
+The decision to avoid Docker Compose and other additional infrastructure was retained rather than expanded since this is a single CLI with no database, server, or second service.
 
-Independent verification included direct inspection of the exact supplied CSV before implementation, calculation of dataset characteristics from that file, deterministic unit tests with manually checkable fixture values, a local CLI smoke test using the real dataset, and review of the Docker configuration. Docker execution was independently verified locally after the Builder phase, including the image build, containerized CLI, and Dockerized test suite.
+Furthermore, during builder implementation, two issues were observed: one incorrect expected value in a test fixture and one robustness issue in the analysis layer. The fixture expectation was recalculated and corrected, and the analysis layer was changed to explicitly convert raw price values with pd.to_numeric(..., errors="coerce") before applying the positive-price rule. The complete test suite was then rerun successfully.
+
+The tester independently compared the implementation with docs/plan.md, inspected the dataset and source files, evaluated the tests and edge cases, reviewed the CLI and Docker configuration, and checked the README.
+
+No implementation defects requiring correction were identified. The tester reported the inability to perform a literal GitHub clone and Docker execution in its own environment as environmental limitations rather than project failures. The Tester independently verified the available source and test suite and reported 11/11 tests passing.
+
+Independent verification included direct inspection of the exact supplied CSV before implementation, calculation of dataset characteristics from that file, deterministic unit tests with manually checkable fixture values, a local CLI smoke test using the real dataset, and review of the Docker configuration. Docker execution was independently tested locally after the Builder phase and rerun after the Tester review, including the image build, containerized CLI, and Dockerized test suite. 
 
 ## Scope
 
