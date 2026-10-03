@@ -1,0 +1,10 @@
+id,name,host_id,host_name,neighbourhood_group,neighbourhood,latitude,longitude,room_type,price,minimum_nights,number_of_reviews,last_review,reviews_per_month,calculated_host_listings_count,availability_365
+1,A,10,Alice,Manhattan,X,40,-73,Private room,100,1,2,2019-01-01,1.0,1,0
+2,B,11,Bob,Brooklyn,Y,40,-73,Entire home/apt,200,2,3,2019-02-01,1.0,1,100
+3,C,12,Cara,Manhattan,Z,40,-73,Private room,50,1,0,,,1,200
+4,D,13,Dan,Brooklyn,Y,40,-73,Shared room,0,1,1,2019-03-01,1.0,1,0
+5,E,14,Eve,Queens,Q,40,-73,Entire home/apt,-10,1,1,2019-03-01,1.0,1,365
+6,F,15,Fay,Queens,Q,40,-73,Private room,not-a-number,1,1,2019-03-01,1.0,1,50
+7,G,16,Gail,Queens,Q,40,-73,Private room,1000,1,1,2019-03-01,1.0,1,10
+8,H,17,Hank,Queens,Q,40,-73,Private room,,1,1,2019-03-01,1.0,1,20
+9,I,18,Ian,Queens,Q,40,-73,Private room,75,1,1,2019-03-01,1.0,1,
